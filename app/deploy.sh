@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 # =============================================================================
 # deploy.sh — 首次部署 / 环境重置脚本
-# 适用场景：AWS EC2、本地重置、全新环境搭建
+# 适用平台：Ubuntu / Debian / CentOS / RHEL / Alibaba Cloud Linux
 #
 # 用法（从 app/ 目录执行）：
 #   chmod +x deploy.sh
 #   ./deploy.sh
 #
 # 功能：
-#   1. 安装 Python 依赖
+#   0. 检测 OS，安装 Python 3.11 和 Node.js（如尚未安装）
+#   1. 创建虚拟环境并安装 Python 依赖
 #   2. 构建前端
-#   3. 初始化 / 迁移数据库（如果 de_team.db 已在 git 中，此步骤跳过重建）
-#   4. （可选）重建知识库向量索引 —— 需要 EMBEDDING_MODEL API Key
+#   3. 初始化 / 迁移数据库
+#   4. （可选）重建知识库向量索引
 #   5. 启动服务器
 # =============================================================================
 
@@ -23,10 +24,148 @@ echo "========================================="
 echo " Digital Employee — Deploy"
 echo "========================================="
 
-# ── 1. Python 依赖 ─────────────────────────────────────────────────────────────
+# ── 0. 系统依赖检测与安装 ──────────────────────────────────────────────────────
+
+# ---------- 检测 OS ----------
+detect_os() {
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        echo "$ID"
+    elif command -v uname &>/dev/null; then
+        uname -s | tr '[:upper:]' '[:lower:]'
+    else
+        echo "unknown"
+    fi
+}
+OS=$(detect_os)
+
+# ---------- 安装 Python 3.11 ----------
 echo ""
-echo "[1/4] Installing Python dependencies..."
-pip install -r requirements.txt --quiet
+echo "[0/4] Checking Python 3.11..."
+
+PYTHON311=""
+for cmd in python3.11 python3; do
+    if command -v "$cmd" &>/dev/null; then
+        VER=$("$cmd" -c 'import sys; print(sys.version_info[:2])' 2>/dev/null)
+        if python3 -c "v=$VER; exit(0 if v>=(3,9) else 1)" 2>/dev/null; then
+            PYTHON311="$cmd"
+            break
+        fi
+    fi
+done
+
+if [ -z "$PYTHON311" ]; then
+    echo "  Python 3.9+ not found. Installing Python 3.11..."
+    case "$OS" in
+        ubuntu|debian)
+            apt-get update -y -q
+            apt-get install -y -q software-properties-common
+            add-apt-repository -y ppa:deadsnakes/ppa
+            apt-get update -y -q
+            apt-get install -y -q python3.11 python3.11-venv python3.11-dev
+            ;;
+        centos|rhel|almalinux|rocky|alinux|anolis)
+            # Alibaba Cloud Linux / CentOS 8+ / RHEL 8+
+            if command -v dnf &>/dev/null; then
+                dnf install -y python3.11 python3.11-devel || {
+                    # 尝试启用 EPEL
+                    dnf install -y epel-release
+                    dnf install -y python3.11 python3.11-devel
+                }
+            else
+                # CentOS 7 — 使用 IUS 源
+                yum install -y https://repo.ius.io/ius-release-el7.rpm || true
+                yum install -y python311 python311-devel || {
+                    echo ""
+                    echo "  ✗ 无法自动安装 Python 3.11（CentOS 7 支持有限）"
+                    echo "    请手动安装后重新运行 deploy.sh："
+                    echo "      sudo yum install -y openssl-devel bzip2-devel libffi-devel"
+                    echo "      wget https://www.python.org/ftp/python/3.11.9/Python-3.11.9.tgz"
+                    echo "      tar xf Python-3.11.9.tgz && cd Python-3.11.9"
+                    echo "      ./configure --enable-optimizations && make altinstall"
+                    exit 1
+                }
+            fi
+            ;;
+        *)
+            echo "  ✗ 未识别的发行版: $OS。请手动安装 Python 3.11 后重新运行。"
+            exit 1
+            ;;
+    esac
+    PYTHON311="python3.11"
+fi
+
+PYTHON_VER=$("$PYTHON311" --version)
+echo "  ✓ 使用 $PYTHON_VER ($PYTHON311)"
+
+# ---------- 安装 Node.js ----------
+echo ""
+echo "  Checking Node.js..."
+if ! command -v node &>/dev/null || ! node -e "process.exit(parseInt(process.versions.node)<18?1:0)" 2>/dev/null; then
+    echo "  Node.js 18+ not found. Installing..."
+    case "$OS" in
+        ubuntu|debian)
+            curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+            apt-get install -y -q nodejs
+            ;;
+        centos|rhel|almalinux|rocky|alinux|anolis)
+            curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
+            if command -v dnf &>/dev/null; then
+                dnf install -y nodejs
+            else
+                yum install -y nodejs
+            fi
+            ;;
+        *)
+            echo "  ✗ 无法自动安装 Node.js。请手动安装 Node.js 20 后重新运行。"
+            exit 1
+            ;;
+    esac
+fi
+echo "  ✓ Node.js $(node --version)"
+
+# ── 检查 .env 文件 ──────────────────────────────────────────────────────────────
+echo ""
+if [ ! -f ".env" ]; then
+    echo "  ⚠ 未找到 .env 文件，从 .env.example 复制..."
+    if [ -f ".env.example" ]; then
+        cp .env.example .env
+        echo "  ✓ 已创建 .env（请编辑并填入 API Key 后重新运行）"
+        echo ""
+        echo "  必填项："
+        echo "    ANTHROPIC_API_KEY=sk-ant-..."
+        echo "    EMBEDDING_API_KEY=sk-...   (OpenAI key，用于知识库向量化)"
+        echo ""
+        echo "  编辑完成后运行：  ./deploy.sh"
+        exit 0
+    else
+        echo "  ✗ .env.example 也不存在，请手动创建 .env"
+        exit 1
+    fi
+fi
+
+# ── 1. Python 虚拟环境 + 依赖 ──────────────────────────────────────────────────
+echo ""
+echo "[1/4] Setting up Python virtual environment..."
+
+VENV_DIR="$SCRIPT_DIR/venv"
+if [ ! -d "$VENV_DIR" ]; then
+    "$PYTHON311" -m venv "$VENV_DIR"
+    echo "  ✓ Created venv at $VENV_DIR"
+else
+    echo "  venv already exists, skipping creation"
+fi
+
+# 激活 venv
+# shellcheck disable=SC1090
+source "$VENV_DIR/bin/activate"
+
+# 升级 pip
+pip install --upgrade pip --quiet
+
+echo "  Installing requirements..."
+pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/ --quiet
+echo "  ✓ Python dependencies installed"
 
 # ── 2. 前端构建 ────────────────────────────────────────────────────────────────
 echo ""
@@ -34,14 +173,15 @@ echo "[2/4] Building frontend..."
 if [ -d "web/frontend/node_modules" ]; then
     echo "  node_modules found, skipping npm install"
 else
-    (cd web/frontend && npm install)
+    (cd web/frontend && npm install --registry https://registry.npmmirror.com)
 fi
 
-if [ -d "web/frontend/dist" ] && [ "$(ls -A web/frontend/dist)" ]; then
+if [ -d "web/frontend/dist" ] && [ "$(ls -A web/frontend/dist 2>/dev/null)" ]; then
     echo "  dist/ already exists, skipping build (delete dist/ to force rebuild)"
 else
     (cd web/frontend && npm run build)
 fi
+echo "  ✓ Frontend ready"
 
 # ── 3. 数据库初始化 + 迁移 ────────────────────────────────────────────────────
 echo ""
@@ -53,7 +193,6 @@ from web.db.database import init_db
 init_db()
 print("  Database ready.")
 
-# If db was freshly created (no agents yet), run all seed scripts
 import sqlite3
 db = sqlite3.connect('web/de_team.db')
 count = db.execute("SELECT COUNT(*) FROM agents WHERE is_active=1").fetchone()[0]
@@ -81,26 +220,28 @@ PYEOF
 # ── 4. 知识库向量索引（可选）─────────────────────────────────────────────────
 echo ""
 echo "[4/4] Knowledge base..."
-if [ -d "knowledge/.chroma" ] && [ "$(ls -A knowledge/.chroma)" ]; then
+if [ -d "knowledge/.chroma" ] && [ "$(ls -A knowledge/.chroma 2>/dev/null)" ]; then
     echo "  .chroma index already exists, skipping setup_kb.py"
     echo "  (delete knowledge/.chroma/ to force a full rebuild)"
 else
-    # KB embedding requires OpenAI API specifically (text-embedding-3-small)
-    if [ -z "$OPENAI_API_KEY" ]; then
-        echo "  ⚠ OPENAI_API_KEY not set — skipping knowledge base setup."
-        echo "    Agents will still work; only the search_knowledge_base tool will be unavailable."
-        echo "    To enable KB later: set OPENAI_API_KEY in .env, then run:"
-        echo "      python knowledge/setup_kb.py"
-    else
+    EMBEDDING_KEY=$(grep -E "^EMBEDDING_API_KEY=" .env 2>/dev/null | cut -d= -f2 | tr -d ' "' || true)
+    OAI_KEY=$(grep -E "^OPENAI_API_KEY=" .env 2>/dev/null | cut -d= -f2 | tr -d ' "' || true)
+    if [ -n "$EMBEDDING_KEY" ] || [ -n "$OAI_KEY" ]; then
         echo "  Building vector index from knowledge/ files..."
         python knowledge/setup_kb.py
-        echo "  Knowledge base ready."
+        echo "  ✓ Knowledge base ready."
+    else
+        echo "  ⚠ EMBEDDING_API_KEY not set — skipping knowledge base setup."
+        echo "    Agents will still work; only the search_knowledge_base tool will be unavailable."
+        echo "    To enable KB later: set EMBEDDING_API_KEY in .env, then run:"
+        echo "      source venv/bin/activate && python knowledge/setup_kb.py"
     fi
 fi
 
 # ── 启动服务器 ─────────────────────────────────────────────────────────────────
 echo ""
 echo "========================================="
-echo " Starting server..."
+echo " Starting server on http://0.0.0.0:8000"
+echo " (Ctrl+C to stop)"
 echo "========================================="
 python web/server.py
