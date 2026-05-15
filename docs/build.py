@@ -337,7 +337,7 @@ body {{
 .toc-link.depth-2 {{ padding-left: 32px; font-size: 11px; }}
 
 /* Content */
-#main {{ flex: 1; overflow-y: auto; padding: calc(var(--topbar-h) + 32px) 48px 80px; min-width: 0; }}
+#main {{ flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: calc(var(--topbar-h) + 32px) 48px 80px; min-width: 0; }}
 
 /* Markdown content */
 .md-content h1 {{ font-size: 1.9em; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: .4em; margin: .5em 0 .8em; }}
@@ -439,15 +439,21 @@ body {{
 @media (max-width: 768px) {{
   #menu-btn {{ display: flex; }}
   :root {{ --sidebar-w: 260px; }}
+  #app {{ overflow: visible; height: auto; }}
+  body {{ overflow: visible; height: auto; }}
   #sidebar {{
-    position: fixed; top: 0; left: 0; height: 100vh; z-index: 95;
+    position: fixed; top: 0; left: 0; height: 100%; z-index: 95;
     transform: translateX(-100%); transition: transform .25s ease;
     padding-top: calc(var(--topbar-h) + 12px);
     box-shadow: 2px 0 12px rgba(0,0,0,.15);
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
   }}
   #sidebar.open {{ transform: translateX(0); }}
   #sidebar-overlay {{ display: block; }}
-  #main {{ padding: calc(var(--topbar-h) + 16px) 16px 60px; }}
+  #main {{
+    padding: calc(var(--topbar-h) + 16px) 16px 60px;
+    overflow-y: visible; height: auto; min-height: 0;
+  }}
   #topbar .logo {{ width: auto; }}
   #search-wrap {{ max-width: none; }}
 }}
