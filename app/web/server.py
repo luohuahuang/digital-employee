@@ -1,8 +1,8 @@
 """
-Digital QA Team — Web Server entry point.
+Digital Employee Platform — Web Server entry point.
 
 Usage:
-    cd digital-qa-employee
+    cd app
     python web/server.py
 
 The server will:
@@ -69,7 +69,7 @@ app.include_router(browser_skills_router, prefix="/api")
 # Health check
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "service": "Digital QA Team"}
+    return {"status": "ok", "service": "Digital Employee Platform"}
 
 
 # Serve HTML docs at /docs/  (must be mounted before the SPA catch-all)
