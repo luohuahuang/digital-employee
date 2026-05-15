@@ -1,0 +1,37 @@
+# Exam: Sprint planning — resolve scope vs. deadline conflict
+id: "pj-sprint-planning-001"
+skill: "sprint_planning"
+scenario: "Resolve a scope-deadline conflict going into Sprint 12"
+difficulty: "L1"
+role: "PJ"
+
+input:
+  message: |
+    Sprint 12 starts Monday. The team has committed to delivering: (1) payment gateway v2 integration,
+    (2) SMS OTP for checkout, and (3) order status push notifications.
+
+    On Friday, the backend lead flagged that the gateway v2 API docs have errors — integration
+    will take 3 extra days. That pushes delivery past the sprint boundary. The release date is fixed
+    (regulatory deadline for payment compliance).
+
+    How do you handle this? What options do you present to stakeholders, and how do you decide?
+
+expected_keywords:
+  - "scope"
+  - "trade-off"
+  - "stakeholder"
+  - "risk"
+  - "prioritize"
+  - "MVP"
+  - "dependency"
+
+mentor_criteria:
+  - "Does not promise everything will be done — surfaces the constraint clearly"
+  - "Presents at least two options with trade-offs (scope cut vs. resource addition vs. timeline slip)"
+  - "Identifies which items are must-haves vs. nice-to-haves for the regulatory deadline"
+  - "Proposes a decision owner and decision timeline (does not drag the decision)"
+  - "Considers downstream dependencies of each option (e.g., SMS OTP depends on payment gateway)"
+
+auto_score_weight: 0.4
+mentor_score_weight: 0.6
+threshold: 65

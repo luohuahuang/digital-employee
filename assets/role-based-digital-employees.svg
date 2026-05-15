@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" role="img">
+  <title>Role-Based Digital Employees and Team Structure</title>
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:#f8fafc"/>
+      <stop offset="100%" style="stop-color:#f1f5f9"/>
+    </linearGradient>
+    <filter id="s"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.1"/></filter>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#bg2)"/>
+  <text x="480" y="32" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="17" font-weight="600" fill="#0f172a">Role-Based Digital Employees and Team Structure (Illustration)</text>
+  <text x="480" y="54" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" fill="#64748b">Digital employees correspond to real roles — PM / Dev / QA / PJ / SRE — not just 'assistant' plugins</text>
+  <!-- Team boundary -->
+  <rect x="40" y="72" width="880" height="300" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#s)"/>
+  <text x="72" y="98" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="600" fill="#475569">Software Engineering Team (Boundary)</text>
+  <!-- Leader -->
+  <rect x="300" y="108" width="360" height="44" rx="8" fill="#0f172a"/>
+  <text x="480" y="136" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="600" fill="#f8fafc">Human Lead (Tech Lead / Sub-team Lead / PJ, etc.)</text>
+  <line x1="480" y1="152" x2="480" y2="168" stroke="#64748b" stroke-width="1.5"/>
+  <polygon points="480,175 475,168 485,168" fill="#64748b"/>
+  <text x="480" y="186" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" fill="#64748b">Leads sub-team: goals, cadence and delivery accountability</text>
+  <!-- Human row -->
+  <text x="72" y="218" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" font-weight="600" fill="#334155">Human Engineers</text>
+  <g font-family="Helvetica Neue, Arial, sans-serif">
+    <rect x="140" y="198" width="120" height="36" rx="6" fill="#e2e8f0" stroke="#94a3b8"/>
+    <text x="200" y="221" text-anchor="middle" font-size="12" fill="#0f172a">PM</text>
+    <rect x="280" y="198" width="120" height="36" rx="6" fill="#e2e8f0" stroke="#94a3b8"/>
+    <text x="340" y="221" text-anchor="middle" font-size="12" fill="#0f172a">Dev</text>
+    <rect x="420" y="198" width="120" height="36" rx="6" fill="#e2e8f0" stroke="#94a3b8"/>
+    <text x="480" y="221" text-anchor="middle" font-size="12" fill="#0f172a">QA</text>
+    <rect x="560" y="198" width="120" height="36" rx="6" fill="#e2e8f0" stroke="#94a3b8"/>
+    <text x="620" y="221" text-anchor="middle" font-size="12" fill="#0f172a">PJ</text>
+    <rect x="700" y="198" width="120" height="36" rx="6" fill="#e2e8f0" stroke="#94a3b8"/>
+    <text x="760" y="221" text-anchor="middle" font-size="12" fill="#0f172a">SRE</text>
+  </g>
+  <!-- Connectors -->
+  <g stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3">
+    <line x1="200" y1="234" x2="200" y2="268"/>
+    <line x1="340" y1="234" x2="340" y2="268"/>
+    <line x1="480" y1="234" x2="480" y2="268"/>
+    <line x1="620" y1="234" x2="620" y2="268"/>
+    <line x1="760" y1="234" x2="760" y2="268"/>
+  </g>
+  <text x="480" y="258" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="9" fill="#94a3b8">Role correspondence</text>
+  <!-- Digital row -->
+  <text x="72" y="308" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" font-weight="600" fill="#0c4a6e">Role-Based Digital Employees</text>
+  <g font-family="Helvetica Neue, Arial, sans-serif">
+    <rect x="140" y="278" width="120" height="40" rx="6" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="1.5"/>
+    <text x="200" y="303" text-anchor="middle" font-size="11" fill="#0c4a6e">Digital PM</text>
+    <rect x="280" y="278" width="120" height="40" rx="6" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="1.5"/>
+    <text x="340" y="303" text-anchor="middle" font-size="11" fill="#0c4a6e">Digital Dev</text>
+    <rect x="420" y="278" width="120" height="40" rx="6" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="1.5"/>
+    <text x="480" y="303" text-anchor="middle" font-size="11" fill="#0c4a6e">Digital QA</text>
+    <rect x="560" y="278" width="120" height="40" rx="6" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="1.5"/>
+    <text x="620" y="303" text-anchor="middle" font-size="11" fill="#0c4a6e">Digital PJ</text>
+    <rect x="700" y="278" width="120" height="40" rx="6" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="1.5"/>
+    <text x="760" y="303" text-anchor="middle" font-size="11" fill="#0c4a6e">Digital SRE</text>
+  </g>
+  <text x="480" y="348" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" fill="#64748b">Under authorization and guidelines, handles automatable and assistive work for each role</text>
+  <!-- Bottom: peer orchestration -->
+  <rect x="40" y="392" width="880" height="108" rx="12" fill="#fffbeb" stroke="#fcd34d" stroke-width="1"/>
+  <text x="480" y="418" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="600" fill="#92400e">Same-role Orchestration (Example)</text>
+  <text x="480" y="440" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" fill="#78350f">Senior Dev (human) — leads / orchestrates —&#x25B6; Digital Dev: task breakdown, code and review loop, etc.</text>
+  <text x="480" y="462" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" fill="#a16207">Same applies to other roles (e.g. QA &#x2194; Digital QA); planning must clarify role definitions, pairing, permission and responsibility boundaries</text>
+</svg>

@@ -1,0 +1,93 @@
+# Security Testing: SQL Injection Attack Scenarios
+# Tests ability to design systematic SQL injection test cases
+id: "qa-security-sql-injection-001"
+role: "QA"
+skill: "security_testing"
+scenario: "Design systematic SQL injection test cases for a product search feature"
+difficulty: "L1"
+origin: "designed"
+tags: [security, SQL_injection, UNION, boolean_based, time_based, error_based]
+
+input:
+  message: |
+    A dev just said: "Hey, can you test if our search bar is safe from SQL injection?"
+
+    We have a product search feature:
+    - URL: /api/search?query=laptop
+    - Backend: SELECT * FROM products WHERE name LIKE '%{query}%' OR description LIKE '%{query}%'
+    - Results returned as JSON with product id, name, price, description
+
+    The dev says: "Just test it real quick and let me know if it's safe."
+
+    Instead of just testing, design a systematic approach to SQL injection testing. What types of SQL injection exist? What test cases would you run? How would you confirm vulnerability?
+
+rules:
+  - type: contains_any
+    values: ["UNION", "SELECT", "boolean", "time", "error", "blind", "time-based"]
+    fail_message: "Did not propose multiple types of SQL injection test techniques"
+  - type: contains_any
+    values: ["test case", "payload", "verify", "confirm", "vulnerable", "safe"]
+    fail_message: "Did not propose specific test cases or verification approach"
+  - type: contains_any
+    values: ["parameterized", "prepared", "fix", "mitigation", "safe"]
+    fail_message: "Did not propose how to remediate if vulnerability is found"
+
+criteria:
+  - id: injection_types
+    description: "Are multiple SQL injection types identified?"
+    weight: 0.35
+    rubric:
+      3: "Identifies 4+ types with examples: (1) UNION-based: ' UNION SELECT NULL, table_name FROM information_schema.tables -- (retrieves schema), (2) Boolean-based: ' OR '1'='1 (changes WHERE clause), (3) Time-based: ' OR SLEEP(5) -- (confirms blind SQL injection), (4) Error-based: ' AND 1=CAST((SELECT COUNT(*) FROM users) AS INT) -- (extracts data via error messages)"
+      2: "Identifies 3 types with reasonable examples"
+      1: "Identifies 1-2 types"
+      0: "No injection types identified"
+
+  - id: test_case_design
+    description: "Are specific, actionable test cases proposed?"
+    weight: 0.35
+    rubric:
+      3: "Proposes test cases: (1) Test basic injection: query='test' OR '1'='1, (2) Test UNION injection: query=' UNION SELECT NULL, NULL, NULL FROM products WHERE '1'='1, (3) Test time-based: query=' OR SLEEP(5) --, measure response time, (4) Test error-based: query=' AND 1=CAST(...) --, observe error message, (5) Test comment syntax: query=' -- and query=' /*', (6) Test encoding: query=%27 (URL-encoded quote)"
+      2: "Proposes 5-6 test cases"
+      1: "Proposes 3-4 test cases"
+      0: "Proposes fewer than 3 test cases"
+
+  - id: verification_approach
+    description: "Is a verification strategy defined?"
+    weight: 0.20
+    rubric:
+      3: "Specifies verification: (1) Success criteria: if query=' OR '1'='1 returns more results than 'query=test', then vulnerable, (2) Time-based: if response time jumps to 5+ seconds, likely vulnerable, (3) Error-based: if error message reveals DB schema, vulnerable, (4) Safe criteria: all injections return error or no results"
+      2: "Defines verification for 2-3 injection types"
+      1: "Defines verification vaguely"
+      0: "No verification approach"
+
+  - id: remediation
+    description: "Is a fix proposed if vulnerability exists?"
+    weight: 0.10
+    rubric:
+      3: "Recommends: 'Use parameterized queries: SELECT * FROM products WHERE name LIKE ? OR description LIKE ? with parameters %, [query], %. Or use ORM that auto-escapes. Test with remediation applied.'"
+      2: "Mentions parameterized queries or ORM"
+      1: "Vaguely suggests 'fix it'"
+      0: "No remediation proposed"
+
+expected_keywords:
+  - "UNION"
+  - "SELECT"
+  - "injection"
+  - "parameterized"
+  - "Boolean"
+  - "time-based"
+  - "error-based"
+  - "test case"
+
+mentor_criteria:
+  - "Identifies at least 3 types of SQL injection (UNION, boolean, time-based, error-based)"
+  - "Proposes specific test payloads (not vague 'test for injection')"
+  - "Defines how to verify vulnerability for each type"
+  - "Addresses encoding and comment syntax variations"
+  - "Proposes time-based testing with measurable response time"
+  - "Recommends parameterized queries as fix"
+  - "Systematic approach, not just random testing"
+
+auto_score_weight: 0.50
+mentor_score_weight: 0.50
+pass_threshold: 75

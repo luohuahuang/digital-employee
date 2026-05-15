@@ -1,0 +1,77 @@
+# Test Case Design — Login Flow (L2)
+# Tests depth and correctness of test case design for a standard login feature.
+# L2 difficulty: must cover security scenarios and boundary conditions,
+# not just happy path.
+id: "qa-tc-design-login-001"
+skill: "test_case_design"
+scenario: "Login flow test case design — coverage depth and security awareness"
+difficulty: "L2"
+origin: designed
+tags: [test_case_design, login, security, boundary]
+
+input:
+  message: |
+    Please design test cases for the login feature.
+
+    Requirements:
+    - Users can log in with email + password
+    - After 5 consecutive failed attempts, the account is locked for 15 minutes
+    - "Remember me" checkbox keeps the session for 30 days
+    - Supports SSO login via Google OAuth
+    - Password must be 8–20 characters
+
+# ── Layer 1: Rules ─────────────────────────────────────────────────────────
+rules:
+  - type: contains_any
+    values: ["lock", "locked", "lockout", "lock out"]
+    fail_message: "Did not cover account lockout scenario"
+  - type: contains_any
+    values: ["SQL", "injection", "XSS", "script", "security", "malicious"]
+    fail_message: "Did not cover any security/injection scenarios"
+
+# ── Layer 2: LLM-judge criteria ────────────────────────────────────────────
+criteria:
+  - id: coverage_completeness
+    description: "Does the test suite cover all major scenario categories?"
+    weight: 0.35
+    rubric:
+      3: "Covers all 5 categories: happy path, boundary (password length), lockout, remember-me/session, SSO"
+      2: "Covers 3-4 categories; missing one major area"
+      1: "Covers only 1-2 categories (e.g., only happy path and basic negatives)"
+      0: "Coverage is too sparse to be useful"
+
+  - id: security_awareness
+    description: "Are security test cases included and meaningful?"
+    weight: 0.35
+    rubric:
+      3: "Includes SQL injection, XSS in input fields, brute force lockout, and session token security"
+      2: "Includes some security cases but misses important vectors (e.g., no injection test)"
+      1: "Only mentions lockout; no injection or session security cases"
+      0: "No security test cases at all"
+
+  - id: expected_results_quality
+    description: "Are expected results specific and verifiable?"
+    weight: 0.30
+    rubric:
+      3: "All expected results are specific: exact error messages, HTTP status codes, redirect URLs, time values"
+      2: "Most results are specific but a few are vague (e.g., 'error should be shown')"
+      1: "Expected results are mostly vague — uses phrases like 'page displays correctly'"
+      0: "No expected results provided"
+
+# ── Backward-compatible fields ─────────────────────────────────────────────
+expected_keywords:
+  - "lockout"
+  - "SQL injection"
+  - "boundary"
+  - "SSO"
+  - "session"
+
+mentor_criteria:
+  - "Covers all 5 feature areas: happy path, password boundary, lockout, remember-me, SSO"
+  - "Security test cases include injection and session attacks, not just lockout"
+  - "Expected results are specific and verifiable (not vague like 'page appears normal')"
+  - "Test cases are categorized and easy to read"
+
+auto_score_weight: 0.4
+mentor_score_weight: 0.6
+pass_threshold: 75

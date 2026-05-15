@@ -1,0 +1,107 @@
+# Test Case Design: User Registration Flow
+# Tests ability to design test cases for account creation with validation rules
+id: "qa-tc-design-user-registration-001"
+role: "QA"
+skill: "test_case_design"
+scenario: "Design test cases for user registration with email and phone validation"
+difficulty: "L1"
+origin: "designed"
+tags: [registration, user_account, validation, input_format, test_case_design]
+
+input:
+  message: |
+    We're building a user registration flow. Need test cases for:
+
+    **Validation Rules:**
+    - Email: must match regex `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+    - Email: must be unique (no duplicates in system)
+    - Phone: must be 10-15 digits, with optional +, -, (), space separators
+    - Phone: must be unique (no duplicates)
+    - Password: minimum 8 characters, must include 1 uppercase, 1 lowercase, 1 digit, 1 special char
+    - Username: 3-20 alphanumeric characters + underscore, no spaces
+    - If user already exists by email, return "email already registered" without revealing which service user is from
+    - If registration succeeds, send confirmation email (not in scope to test actual email sending, just that the request was made)
+
+    **Scenarios:**
+    - Valid registration (all fields correct)
+    - Invalid email formats (missing @, invalid domain, extra spaces)
+    - Duplicate email (user already exists)
+    - Invalid phone (letters, too short, too long)
+    - Duplicate phone
+    - Weak password (too short, missing uppercase, missing special char)
+    - Invalid username (too short, too long, spaces)
+    - Edge case: username with underscores and numbers (valid)
+    - Edge case: phone with various separators (+1-555-123-4567 vs 1(555)123-4567)
+    - SQL injection attempt in email field
+    - XSS attempt in username
+
+    What test cases would you write?
+
+rules:
+  - type: contains_any
+    values: ["email", "duplicate", "unique", "already"]
+    fail_message: "Did not test email uniqueness and duplicate handling"
+  - type: contains_any
+    values: ["password", "uppercase", "lowercase", "digit", "special", "character"]
+    fail_message: "Did not test password complexity requirements"
+  - type: contains_any
+    values: ["invalid", "format", "validation"]
+    fail_message: "Did not test invalid input formats"
+
+criteria:
+  - id: validation_coverage
+    description: "Are all validation rules tested?"
+    weight: 0.40
+    rubric:
+      3: "Tests all 5 fields: email format + uniqueness, phone format + uniqueness, password complexity, username length/chars, and confirmation email trigger"
+      2: "Tests 4 fields with good depth; one field partially tested"
+      1: "Tests 3 fields; limited breadth"
+      0: "Tests fewer than 3 fields"
+
+  - id: invalid_input_breadth
+    description: "Are invalid input scenarios comprehensive?"
+    weight: 0.35
+    rubric:
+      3: "Tests 5+ invalid scenarios per field: email (no @, bad domain, spaces), phone (letters, too short, separators), password (length, each missing char type), username (length, spaces, special chars)"
+      2: "Tests 3-4 invalid scenarios per field; misses some edge cases"
+      1: "Tests 1-2 invalid scenarios per field; narrow coverage"
+      0: "No invalid input testing"
+
+  - id: edge_cases
+    description: "Are boundary cases and special scenarios tested?"
+    weight: 0.15
+    rubric:
+      3: "Tests exact boundaries: email at 254 chars, phone with all separator variations, password exactly 8 chars, username exactly 3 and 20 chars, and security tests (SQL injection, XSS)"
+      2: "Tests 3-4 edge cases; missing security testing or exact boundaries"
+      1: "Tests 1-2 edge cases"
+      0: "No edge case testing"
+
+  - id: expected_results
+    description: "Are expected results clear and actionable?"
+    weight: 0.10
+    rubric:
+      3: "Each test case specifies exact response: success with 200 + user ID, or failure with specific error message (e.g., 'Email already registered', 'Password must contain uppercase')"
+      2: "Most expected results specified; some vague responses"
+      1: "Expected results mentioned but not specific error codes/messages"
+      0: "No expected results"
+
+expected_keywords:
+  - "email"
+  - "phone"
+  - "password"
+  - "validation"
+  - "duplicate"
+  - "unique"
+  - "format"
+
+mentor_criteria:
+  - "Tests both valid email format and duplicate email rejection"
+  - "Tests phone format with various separators"
+  - "Tests password complexity for all 4 requirements (uppercase, lowercase, digit, special)"
+  - "Tests username length boundaries and character restrictions"
+  - "Tests security: SQL injection and XSS attempts"
+  - "Specifies exact expected error messages for failures"
+
+auto_score_weight: 0.50
+mentor_score_weight: 0.50
+pass_threshold: 75

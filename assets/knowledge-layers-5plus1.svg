@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 620" role="img">
+  <title>R&amp;D Engineering Knowledge Layers 5+1</title>
+  <defs>
+    <linearGradient id="py" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#e2e8f0"/>
+      <stop offset="35%" style="stop-color:#dbeafe"/>
+      <stop offset="70%" style="stop-color:#cffafe"/>
+      <stop offset="100%" style="stop-color:#fef3c7"/>
+    </linearGradient>
+    <filter id="sh"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.12"/></filter>
+    <marker id="mup" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#94a3b8"/></marker>
+  </defs>
+  <rect width="100%" height="100%" fill="#f8fafc"/>
+  <text x="480" y="36" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="17" font-weight="600" fill="#0f172a">Data &amp; Cognition: Layered Knowledge Architecture (R&amp;D Engineering)</text>
+  <text x="480" y="58" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" fill="#64748b">Bottom to top: increasing specialization; base layer is general. Right side shows the '+1' external knowledge base (extended brain)</text>
+  <!-- Arrow up label -->
+  <text x="34" y="320" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" fill="#64748b" transform="rotate(-90 34 320)">Upward: closer to specific tasks</text>
+  <line x1="62" y1="468" x2="62" y2="130" stroke="#cbd5e1" stroke-width="1.5" marker-end="url(#mup)"/>
+  <!-- Layers: bottom = widest (foundation) -->
+  <g filter="url(#sh)" font-family="Helvetica Neue, Arial, sans-serif">
+    <path d="M 80 470 L 880 470 L 840 400 L 120 400 Z" fill="#64748b" fill-opacity="0.25" stroke="#475569" stroke-width="1.2"/>
+    <text x="480" y="432" text-anchor="middle" font-size="13" font-weight="600" fill="#1e293b">General &amp; World Knowledge (Foundation)</text>
+    <text x="480" y="452" text-anchor="middle" font-size="9.5" fill="#475569">General language · Public technical docs and community knowledge</text>
+    <path d="M 120 398 L 840 398 L 805 335 L 155 335 Z" fill="#94a3b8" fill-opacity="0.22" stroke="#64748b" stroke-width="1.2"/>
+    <text x="480" y="368" text-anchor="middle" font-size="13" font-weight="600" fill="#1e293b">Industry Layer</text>
+    <text x="480" y="386" text-anchor="middle" font-size="9.5" fill="#475569">Availability, security, and regulatory requirements</text>
+    <path d="M 155 333 L 805 333 L 775 275 L 185 275 Z" fill="#7dd3fc" fill-opacity="0.35" stroke="#0ea5e9" stroke-width="1.2"/>
+    <text x="480" y="308" text-anchor="middle" font-size="13" font-weight="600" fill="#0c4a6e">Enterprise Layer</text>
+    <text x="480" y="326" text-anchor="middle" font-size="9.5" fill="#0369a1">Engineering standards · Architecture principles · Security baselines · Org &amp; resource context</text>
+    <path d="M 185 273 L 775 273 L 750 218 L 210 218 Z" fill="#38bdf8" fill-opacity="0.28" stroke="#0284c7" stroke-width="1.2"/>
+    <text x="480" y="248" text-anchor="middle" font-size="13" font-weight="600" fill="#0c4a6e">Domain Layer</text>
+    <text x="480" y="266" text-anchor="middle" font-size="9.5" fill="#075985">Product line / Domain models and conventions</text>
+    <path d="M 210 216 L 750 216 L 730 138 L 230 138 Z" fill="#fcd34d" fill-opacity="0.45" stroke="#d97706" stroke-width="1.2"/>
+    <text x="480" y="178" text-anchor="middle" font-size="13" font-weight="600" fill="#78350f">Task Layer</text>
+    <text x="480" y="198" text-anchor="middle" font-size="9.5" fill="#92400e">Project · Service · Major release or initiative-specific knowledge</text>
+  </g>
+  <!-- +1 side card -->
+  <rect x="720" y="88" width="200" height="200" rx="12" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="6 4" filter="url(#sh)"/>
+  <text x="820" y="118" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="600" fill="#92400e">+1 External Knowledge Base</text>
+  <text x="820" y="142" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" fill="#a16207">(Extended Brain)</text>
+  <text x="820" y="172" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="9.5" fill="#78350f">Streaming updates · Access control</text>
+  <text x="820" y="192" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="9.5" fill="#78350f">RAG / Graph RAG</text>
+  <text x="820" y="228" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="9" fill="#64748b">Combined with layered knowledge</text>
+  <text x="820" y="246" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="9" fill="#64748b">for enhanced retrieval &amp; reasoning</text>
+  <path d="M 718 188 Q 650 200 600 240" fill="none" stroke="#f59e0b" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <polygon points="600,240 605,232 608,242" fill="#f59e0b"/>
+  <text x="480" y="520" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" fill="#64748b">Concurrently build code/doc vector stores, internal Wiki, ticket and incident archives, serving role-based digital employees</text>
+</svg>

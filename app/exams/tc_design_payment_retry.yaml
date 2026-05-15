@@ -1,0 +1,107 @@
+# Test Case Design: Payment Failure Retry Scenarios
+# Tests ability to design test cases for payment retries, idempotency, and failure modes
+id: "qa-tc-design-payment-retry-001"
+role: "QA"
+skill: "test_case_design"
+scenario: "Design test cases for payment gateway retry logic and idempotency"
+difficulty: "L2"
+origin: "designed"
+tags: [payment, retry, idempotency, network_failure, test_case_design]
+
+input:
+  message: |
+    We're building retry logic for payment failures. Need test cases covering:
+
+    **Payment Retry Rules:**
+    - On payment gateway timeout (>10 seconds, no response), retry up to 3 times
+    - Exponential backoff: wait 1s, 2s, 4s between retries
+    - On gateway 5xx error, retry immediately up to 2 times
+    - On gateway 4xx error (bad request, etc), do NOT retry
+    - Each payment attempt has a unique idempotency key (order_id + timestamp + attempt_number)
+    - Gateway deduplicates based on idempotency key (same key = same response, no double-charge)
+    - "Partial debit" scenario: gateway confirms the charge succeeded BUT user's bank shows as "pending"
+    - For partial debit, flag the order as "payment_verified_pending_confirmation" and check bank 6 hours later
+
+    **Test Scenarios:**
+    - Happy path: payment succeeds on first attempt
+    - Network timeout → retry 1 succeeds
+    - Network timeout → retry 1 times out → retry 2 succeeds
+    - Network timeout → all 3 retries timeout (order marked as payment_failed)
+    - 5xx error → immediate retry → success
+    - 4xx error (do NOT retry) → order marked payment_failed immediately
+    - Partial debit: charge confirmed, but bank shows pending
+    - Duplicate request (idempotency): retry with same key returns cached response (no double-charge)
+    - Race condition: user clicks "pay" twice in rapid succession
+
+    Design the test cases. What's the approach?
+
+rules:
+  - type: contains_any
+    values: ["timeout", "retry", "attempt", "exponential", "backoff"]
+    fail_message: "Did not address retry mechanism and backoff strategy"
+  - type: contains_any
+    values: ["idempotency", "idempotent", "duplicate", "double-charge", "deduplication"]
+    fail_message: "Did not test idempotency key behavior and duplicate prevention"
+  - type: contains_any
+    values: ["partial", "pending", "confirmation", "verified pending"]
+    fail_message: "Did not address partial debit / pending confirmation scenario"
+
+criteria:
+  - id: retry_logic_coverage
+    description: "Are all retry scenarios tested?"
+    weight: 0.35
+    rubric:
+      3: "Tests all 5 retry scenarios: timeout success on retry 1, timeout on retry 2, all timeouts fail, 5xx with retry, 4xx no-retry"
+      2: "Tests 4 retry scenarios; one missing or unclear"
+      1: "Tests 2-3 retry scenarios; gaps in timeout vs error distinction"
+      0: "Fewer than 2 retry scenarios tested"
+
+  - id: idempotency_testing
+    description: "Is idempotency protection tested thoroughly?"
+    weight: 0.30
+    rubric:
+      3: "Tests 3+ idempotency scenarios: duplicate request returns cached result, race condition (2 simultaneous clicks), retried request with same key, double-charge prevention verification"
+      2: "Tests 2 idempotency scenarios; missing race condition or double-charge verification"
+      1: "Tests 1 idempotency scenario; limited depth"
+      0: "No idempotency testing"
+
+  - id: edge_case_handling
+    description: "Are edge cases like partial debit and race conditions covered?"
+    weight: 0.20
+    rubric:
+      3: "Tests partial debit scenario with follow-up check, race condition with concurrent requests, timeout + retry exhaustion, and error code handling (4xx vs 5xx)"
+      2: "Tests 2-3 edge cases; one missing or incomplete"
+      1: "Mentions edge cases but no specific test scenarios"
+      0: "No edge case testing"
+
+  - id: verification_specificity
+    description: "Are verification steps and expected results precise?"
+    weight: 0.15
+    rubric:
+      3: "Each test case specifies: payment status in DB, order status, user notification (if any), bank transaction log, idempotency key in payment gateway log"
+      2: "Most verification steps present; some missing (e.g., didn't specify bank log check)"
+      1: "Verification steps are vague (e.g., 'check that payment worked')"
+      0: "No verification steps"
+
+expected_keywords:
+  - "retry"
+  - "timeout"
+  - "idempotency"
+  - "idempotent"
+  - "partial"
+  - "pending"
+  - "5xx"
+  - "4xx"
+  - "exponential"
+
+mentor_criteria:
+  - "Distinguishes between timeout, 5xx, and 4xx errors with different retry strategies"
+  - "Tests that idempotency keys prevent double-charges on duplicate requests"
+  - "Tests the partial debit scenario with specific follow-up steps"
+  - "Tests race condition: simultaneous payment attempts with same order"
+  - "Specifies exponential backoff timing (1s, 2s, 4s)"
+  - "Defines precise verification: payment status, order status, DB consistency, bank records"
+
+auto_score_weight: 0.40
+mentor_score_weight: 0.60
+pass_threshold: 75

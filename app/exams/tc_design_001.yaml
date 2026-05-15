@@ -1,0 +1,31 @@
+# Test Case 1: Standard functional test case design (Add to Cart)
+# Corresponds to design doc §3.5 Test Case Examples / §7.1 Exam Library Structure
+id: "qa-tc-design-cart-001"
+skill: "test_case_design"
+scenario: "Add to Cart API test case design"
+difficulty: "L1"
+
+input:
+  message: |
+    Please help me design test cases for the "Add to Cart" API.
+    Requirements document is at: sample_requirements/add_to_cart.txt
+
+# Auto-scoring criteria: check if output contains these keywords/semantics
+# auto_score_weight=0.6 means auto-score accounts for 60% of total
+expected_keywords:
+  - "insufficient inventory"      # Must cover inventory boundary
+  - "out of stock"                # Product status exception
+  - "99"                          # Quantity upper limit boundary
+  - "not logged in"               # Authentication scenario
+  - "duplicate add"               # Idempotency/accumulation scenario
+
+# Mentor scoring dimensions (40% of total)
+mentor_criteria:
+  - "Test cases categorized into normal flow, boundary cases, and exception cases"
+  - "Quantity boundary covers: 0, 1, 99, 100"
+  - "No hallucinations (did not generate rules not in requirements document)"
+  - "Specific expected results (not vague statements like 'page appears normal')"
+
+auto_score_weight: 0.6
+mentor_score_weight: 0.4
+pass_threshold: 75

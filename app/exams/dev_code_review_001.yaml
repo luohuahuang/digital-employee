@@ -1,0 +1,53 @@
+# Exam: Code review — identify security and logic issues in a payment handler
+id: "dev-code-review-001"
+skill: "code_review"
+scenario: "Security + logic review of a payment processing function"
+difficulty: "L2"
+role: "Dev"
+
+input:
+  message: |
+    Please review the following Python payment handler for security issues, logic bugs, and best-practice violations.
+
+    ```python
+    def process_payment(user_id, amount, card_number, cvv):
+        # Validate amount
+        if amount <= 0:
+            return {"status": "error", "msg": "Invalid amount"}
+
+        # Log transaction details
+        print(f"Processing payment for user {user_id}: card={card_number}, cvv={cvv}, amount={amount}")
+
+        # Check balance (raw SQL)
+        import sqlite3
+        conn = sqlite3.connect("payments.db")
+        result = conn.execute(f"SELECT balance FROM users WHERE id = {user_id}").fetchone()
+        balance = result[0] if result else 0
+
+        if balance < amount:
+            return {"status": "error", "msg": "Insufficient funds"}
+
+        # Deduct balance
+        conn.execute(f"UPDATE users SET balance = balance - {amount} WHERE id = {user_id}")
+        conn.commit()
+        return {"status": "ok", "charged": amount}
+    ```
+
+expected_keywords:
+  - "SQL injection"
+  - "card_number"
+  - "CVV"
+  - "logging"
+  - "PCI"
+  - "atomic"
+
+mentor_criteria:
+  - "Identifies all three SQL injection vulnerabilities (SELECT and UPDATE)"
+  - "Flags PAN/CVV logging as a PCI DSS violation"
+  - "Notes missing transaction atomicity (no rollback on failure)"
+  - "Suggests parameterized queries or ORM as the fix"
+  - "Mentions that card_number/cvv should never appear in function arguments in plaintext"
+
+auto_score_weight: 0.5
+mentor_score_weight: 0.5
+threshold: 70

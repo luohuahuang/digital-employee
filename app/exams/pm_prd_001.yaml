@@ -1,0 +1,35 @@
+# Exam: PRD writing — flash sale feature
+id: "pm-prd-flash-sale-001"
+skill: "prd_writing"
+scenario: "Write a PRD for a flash sale feature"
+difficulty: "L2"
+role: "PM"
+
+input:
+  message: |
+    Write a Product Requirements Document (PRD) for a flash sale feature.
+    Background: Our e-commerce platform currently lacks the ability to run time-limited discount events.
+    The business team wants to launch flash sales with: countdown timers, limited quantity per SKU,
+    one item per customer limit, and real-time inventory display.
+
+    Target users: shoppers who respond to urgency. Success metric: conversion rate during sale windows.
+
+expected_keywords:
+  - "user story"
+  - "acceptance criteria"
+  - "countdown"
+  - "inventory"
+  - "one per customer"
+  - "edge case"
+  - "out of scope"
+
+mentor_criteria:
+  - "Includes at least 3 user stories in standard format (As a … I want … so that …)"
+  - "Defines measurable success metrics (not just 'improve conversion')"
+  - "Has a clear 'Out of Scope' section to prevent scope creep"
+  - "Identifies key edge cases: simultaneous checkout, race conditions on last item"
+  - "Specifies acceptance criteria that engineering can test against"
+
+auto_score_weight: 0.45
+mentor_score_weight: 0.55
+threshold: 68

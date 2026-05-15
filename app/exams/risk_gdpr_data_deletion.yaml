@@ -1,0 +1,112 @@
+# Risk Identification: GDPR Right to Be Forgotten Implementation
+# Tests ability to identify risks in compliance and data deletion features
+id: "qa-risk-gdpr-data-deletion-001"
+role: "QA"
+skill: "risk_identification"
+scenario: "Identify risks when implementing GDPR right-to-be-forgotten feature"
+difficulty: "L2"
+origin: "designed"
+tags: [risk, compliance, GDPR, data_deletion, cascading_deletes, audit]
+
+input:
+  message: |
+    We need to implement "right to be forgotten" (GDPR Article 17). Customer can request deletion of all their personal data. Here's the plan:
+
+    **System Overview:**
+    - Users table: id, email, name, phone, address, created_at
+    - Orders table: id, user_id, items, total, created_at (100M rows)
+    - Payments table: id, order_id, amount, status, created_at (100M rows)
+    - Support tickets table: id, user_id, subject, content, created_at
+    - Reviews table: id, user_id, product_id, rating, text
+    - Analytics DB: aggregated data (no PII)
+    - Backups: daily snapshots stored for 30 days
+
+    **Deletion Plan:**
+    - When user requests deletion: mark users.deleted=true
+    - Cascade delete all orders, payments, support tickets, reviews linked to that user
+    - Anonymize analytics records (replace user_id with NULL)
+    - Delete from backups (would need to restore and re-delete)
+
+    **Question:**
+    What are the risks? What data might we forget to delete? What breaks? What legal/compliance issues might arise?
+
+rules:
+  - type: contains_any
+    values: ["table", "cascade", "foreign key", "orphaned", "reference"]
+    fail_message: "Did not address cascading deletion across multiple tables"
+  - type: contains_any
+    values: ["backup", "restore", "retention", "archive", "historical"]
+    fail_message: "Did not address backup and historical data retention risks"
+  - type: contains_any
+    values: ["audit", "log", "evidence", "compliance", "GDPR", "legal"]
+    fail_message: "Did not address audit trail and compliance documentation"
+
+criteria:
+  - id: data_scope_completeness
+    description: "Are all data stores and tables identified?"
+    weight: 0.35
+    rubric:
+      3: "Identifies deletion must cover: (1) users table, (2) orders, (3) payments, (4) support tickets, (5) reviews, (6) analytics, (7) cache (Redis/Memcached), (8) audit logs?, (9) third-party data (payment processor, logistics), (10) PDF invoices/receipts stored in S3"
+      2: "Identifies 7-8 data sources"
+      1: "Identifies 5-6 data sources"
+      0: "Identifies fewer than 5"
+
+  - id: cascading_deletion_risk
+    description: "Are cascading deletion risks identified?"
+    weight: 0.25
+    rubric:
+      3: "Identifies: (1) Orphaned records if cascade fails midway (partial delete), (2) Foreign key constraint violations if delete order wrong, (3) Data integrity: orders remain but user is gone, (4) Referential integrity checks needed, (5) Risk: deleting from orders when payments still reference orders, (6) Recommendation: use database transactions, delete in dependency order (reviews, support → orders → payments → users)"
+      2: "Identifies 4-5 cascading risks"
+      1: "Identifies 2-3 risks"
+      0: "No cascading risks identified"
+
+  - id: backup_and_audit
+    description: "Are backup and audit trail risks identified?"
+    weight: 0.20
+    rubric:
+      3: "Identifies: (1) Backups contain user data, deletion must invalidate 30-day backups (complex), (2) Audit logs record user actions; should we delete audit logs too?, (3) Compliance: must prove deletion happened; need deletion certificate, (4) Legal: must inform payment processor/logistics provider to delete their copy, (5) Recommendation: crypto-shredding (key rotation) might be safer than physical deletion"
+      2: "Identifies 3-4 backup/audit concerns"
+      1: "Identifies 1-2 concerns"
+      0: "No backup/audit concerns identified"
+
+  - id: third_party_data
+    description: "Is third-party data handling considered?"
+    weight: 0.15
+    rubric:
+      3: "Identifies: (1) Payment processor has card data on file (must delete), (2) Logistics provider has shipping history, (3) Email service provider has unsubscribe records, (4) Google Analytics may have user IDs, (5) We cannot force third parties to delete if they're outside EU, (6) Recommendation: obtain deletion confirmation from each third party"
+      2: "Identifies 3-4 third-party concerns"
+      1: "Identifies 1-2 concerns"
+      0: "No third-party considerations"
+
+  - id: operational_impact
+    description: "Are operational and testing risks identified?"
+    weight: 0.05
+    rubric:
+      3: "Notes: 'Deleting from 100M order rows will be slow. Might need batch processing. Need to test on production-like data volume. Risk: accidental deletion if user ID lookup is wrong.'"
+      2: "Mentions 1-2 operational risks"
+      1: "Touches on operation briefly"
+      0: "No operational impact discussed"
+
+expected_keywords:
+  - "delete"
+  - "cascade"
+  - "backup"
+  - "audit"
+  - "GDPR"
+  - "third party"
+  - "table"
+  - "orphaned"
+
+mentor_criteria:
+  - "Identifies all tables and data sources to be deleted"
+  - "Identifies cascading deletion risks and order dependencies"
+  - "Identifies backup and historical data retention issues"
+  - "Identifies audit trail and compliance documentation needs"
+  - "Identifies third-party data (payment processor, logistics, analytics)"
+  - "Proposes deletion strategy: transaction-based, dependency order"
+  - "Addresses backup invalidation and recovery risks"
+  - "Recommends testing on production-like data volume"
+
+auto_score_weight: 0.40
+mentor_score_weight: 0.60
+pass_threshold: 75

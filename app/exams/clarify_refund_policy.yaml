@@ -1,0 +1,80 @@
+# Requirement Clarification: Refund Policy Definition
+# Tests ability to identify ambiguous requirements and ask clarifying questions
+id: "qa-clarify-refund-policy-001"
+role: "QA"
+skill: "requirement_clarification"
+scenario: "Clarify a vague refund policy requirement before testing"
+difficulty: "L1"
+origin: "designed"
+tags: [requirements, refund, policy, ambiguity, clarification]
+
+input:
+  message: |
+    Hey, can you help design test cases for our new refund policy? Here's the spec:
+
+    **Refund Policy:**
+    "We will process refunds within a reasonable time frame for customers who return items in satisfactory condition."
+
+    That's all the detail we have. We need to go live with refund functionality next sprint, and I need test cases ready. What should I test?
+
+rules:
+  - type: contains_any
+    values: ["ask", "clarify", "question", "how long", "what is", "define", "specify"]
+    fail_message: "Did not ask clarifying questions; treated the vague requirement as complete"
+  - type: contains_any
+    values: ["reasonable", "satisfactory", "ambiguous", "unclear"]
+    fail_message: "Did not call out the ambiguous language"
+  - type: contains_any
+    values: ["timeframe", "SLA", "days", "hours", "deadline"]
+    fail_message: "Did not ask about the specific refund processing timeframe"
+
+criteria:
+  - id: ambiguity_recognition
+    description: "Does the agent recognize vague requirements?"
+    weight: 0.40
+    rubric:
+      3: "Explicitly states: 'reasonable time' and 'satisfactory condition' are undefined. Cannot write test cases without specifics. Asks for concrete definitions."
+      2: "Identifies vagueness but explanation is less direct or complete"
+      1: "Mentions that clarification needed but doesn't articulate why"
+      0: "Treats vague requirement as clear"
+
+  - id: clarification_questions
+    description: "Are relevant clarifying questions asked?"
+    weight: 0.40
+    rubric:
+      3: "Asks 5+ specific questions: (1) 'What is the SLA for refund processing (24h, 5 days, 30 days)?' (2) 'What constitutes 'satisfactory condition' (unopened, unused, no damage?)' (3) 'Partial refunds allowed?' (4) 'What about shipping costs?' (5) 'What triggers auto vs manual review?' (6) 'Refund to original payment method or store credit?'"
+      2: "Asks 3-4 clarifying questions; covers major areas"
+      1: "Asks 1-2 clarifying questions"
+      0: "No clarifying questions asked"
+
+  - id: test_case_impact
+    description: "Does the agent explain how clarifications affect test design?"
+    weight: 0.20
+    rubric:
+      3: "Explains: 'If SLA is 24 hours, I test: refund initiated at T, verify status at T+24h and T+23h59m. If 'satisfactory' means unopened, I need test cases for opened vs unopened items. Different definitions require different test coverage.'"
+      2: "Explains how clarifications affect testing but with less detail"
+      1: "Mentions that clarifications matter to testing"
+      0: "No explanation of test impact"
+
+expected_keywords:
+  - "clarify"
+  - "ask"
+  - "define"
+  - "specify"
+  - "ambiguous"
+  - "reasonable"
+  - "timeframe"
+  - "SLA"
+
+mentor_criteria:
+  - "Identifies that 'reasonable time' is too vague to test"
+  - "Identifies that 'satisfactory condition' needs definition"
+  - "Asks about specific SLA (days, hours)"
+  - "Asks about partial refunds and edge cases"
+  - "Asks about refund mechanism (payment method vs store credit)"
+  - "Refuses to write test cases without concrete answers"
+  - "Explains why clarification is necessary for test design"
+
+auto_score_weight: 0.50
+mentor_score_weight: 0.50
+pass_threshold: 75

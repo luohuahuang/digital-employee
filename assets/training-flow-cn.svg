@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 548" role="img" aria-labelledby="tf-cn-title">
+  <title id="tf-cn-title">数字员工训练体系全流程</title>
+  <defs>
+    <linearGradient id="tf-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <filter id="tf-shadow" x="-4%" y="-4%" width="108%" height="114%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.06"/>
+    </filter>
+    <marker id="tf-arr" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#94a3b8"/>
+    </marker>
+    <marker id="tf-arr-g" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#10b981"/>
+    </marker>
+    <marker id="tf-arr-v" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#8b5cf6"/>
+    </marker>
+  </defs>
+
+  <rect width="800" height="548" fill="url(#tf-bg)"/>
+
+  <!-- Header box -->
+  <rect x="80" y="18" width="640" height="44" rx="8" fill="#1e293b" filter="url(#tf-shadow)"/>
+  <text x="400" y="45" text-anchor="middle"
+        font-family="'Helvetica Neue', Arial, 'PingFang SC', sans-serif"
+        font-size="15" font-weight="700" fill="#f8fafc">数字员工训练体系</text>
+
+  <!-- Input section -->
+  <text x="80" y="82" font-family="'Helvetica Neue', Arial, 'PingFang SC', sans-serif"
+        font-size="10" font-weight="700" fill="#64748b">[ 输入 ]</text>
+  <text x="80" y="100" font-family="'Helvetica Neue', Arial, 'PingFang SC', sans-serif"
+        font-size="12" fill="#475569">实习生画像</text>
+  <text x="170" y="100" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="12" fill="#94a3b8">──→</text>
+  <text x="208" y="100" font-family="'Helvetica Neue', Arial, 'PingFang SC', sans-serif"
+        font-size="12" fill="#475569">目标技能列表</text>
+
+  <!-- Arrow input → step 1 -->
+  <line x1="400" y1="106" x2="400" y2="122" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#tf-arr)"/>
+
+  <!-- Step ① y=124 h=72 -->
+  <rect x="150" y="124" width="500" height="72" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" filter="url(#tf-shadow)"/>
+  <line x1="155" y1="133" x2="155" y2="187" stroke="#3b82f6" stroke-width="5" stroke-linecap="round"/>
+  <rect x="166" y="136" width="26" height="20" rx="10" fill="#dbeafe"/>
+  <text x="179" y="150" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" font-weight="700" fill="#1d4ed8">①</text>
+  <text x="202" y="150" font-family="'Helvetica Neue', Arial, 'PingFang SC', sans-serif"
+        font-size="13" font-weight="700" fill="#0f172a">定义目标场景</text>
+  <text x="166" y="173" font-family="'Helvetica Neue', Arial, 'PingFang SC', sans-serif"
+        font-size="10.5" fill="#64748b">示例："收到 P1 订单链告警，30 分钟内完成根因分析并输出报告"</text>
+
+  <!-- Arrow ①→② -->
+  <line x1="400" y1="196" x2="400" y2="212" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#tf-arr)"/>
+
+  <!-- Step ② y=214 h=50 -->
+  <rect x="150" y="214" width="500" height="50" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" filter="url(#tf-shadow)"/>
+  <line x1="155" y1="223" x2="155" y2="255" stroke="#3b82f6" stroke-width="5" stroke-linecap="round"/>
+  <rect x="166" y="226" width="26" height="20" rx="10" fill="#dbeafe"/>
+  <text x="179" y="240" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" font-weight="700" fill="#1d4ed8">②</text>
+  <text x="202" y="240" font-family="'Helvetica Neue', Arial, 'PingFang SC', sans-serif"
+        font-size="13" font-weight="700" fill="#0f172a">场景 → 测评系统</text>
+
+  <!-- Arrow ②→③ -->
+  <line x1="400" y1="264" x2="400" y2="280" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#tf-arr)"/>
+
+  <!-- Step ③ y=282 h=50 -->
+  <rect x="150" y="282" width="500" height="50" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" filter="url(#tf-shadow)"/>
+  <line x1="155" y1="291" x2="155" y2="323" stroke="#3b82f6" stroke-width="5" stroke-linecap="round"/>
+  <rect x="166" y="294" width="26" height="20" rx="10" fill="#dbeafe"/>
+  <text x="179" y="308" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" font-weight="700" fill="#1d4ed8">③</text>
+  <text x="202" y="308" font-family="'Helvetica Neue', Arial, 'PingFang SC', sans-serif"
+        font-size="13" font-weight="700" fill="#0f172a">数字员工参加测评</text>
+
+  <!-- Arrow ③→④ -->
+  <line x1="400" y1="332" x2="400" y2="348" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#tf-arr)"/>
+
+  <!-- Step ④ y=350 h=50 -->
+  <rect x="150" y="350" width="500" height="50" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" filter="url(#tf-shadow)"/>
+  <line x1="155" y1="359" x2="155" y2="391" stroke="#f59e0b" stroke-width="5" stroke-linecap="round"/>
+  <rect x="166" y="362" width="26" height="20" rx="10" fill="#fef3c7"/>
+  <text x="179" y="376" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" font-weight="700" fill="#92400e">④</text>
+  <text x="202" y="376" font-family="'Helvetica Neue', Arial, 'PingFang SC', sans-serif"
+        font-size="13" font-weight="700" fill="#0f172a">评分与通过判断</text>
+
+  <!-- Branch from ④ -->
+  <line x1="400" y1="400" x2="400" y2="416" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="230" y1="416" x2="570" y2="416" stroke="#94a3b8" stroke-width="1.5"/>
+  <!-- Left: pass -->
+  <line x1="230" y1="416" x2="230" y2="432" stroke="#10b981" stroke-width="1.5" marker-end="url(#tf-arr-g)"/>
+  <text x="168" y="428" font-family="'Helvetica Neue', Arial, 'PingFang SC', sans-serif"
+        font-size="10" fill="#10b981">分数 ≥ 阈值</text>
+  <!-- Right: reinforce -->
+  <line x1="570" y1="416" x2="570" y2="432" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#tf-arr-v)"/>
+  <text x="578" y="428" font-family="'Helvetica Neue', Arial, 'PingFang SC', sans-serif"
+        font-size="10" fill="#8b5cf6">分数 &lt; 阈值</text>
+
+  <!-- Step ⑤ (pass) y=434 -->
+  <rect x="80" y="434" width="280" height="52" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" filter="url(#tf-shadow)"/>
+  <text x="220" y="465" text-anchor="middle"
+        font-family="'Helvetica Neue', Arial, 'PingFang SC', sans-serif"
+        font-size="13" font-weight="700" fill="#065f46">⑤ 技能通过</text>
+
+  <!-- Step ⑤' (loop) y=434 -->
+  <rect x="440" y="434" width="280" height="52" rx="8" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1.5" filter="url(#tf-shadow)"/>
+  <text x="580" y="457" text-anchor="middle"
+        font-family="'Helvetica Neue', Arial, 'PingFang SC', sans-serif"
+        font-size="13" font-weight="700" fill="#5b21b6">⑤' 强化循环</text>
+  <text x="580" y="475" text-anchor="middle"
+        font-family="'Helvetica Neue', Arial, 'PingFang SC', sans-serif"
+        font-size="10" fill="#7c3aed">（Prompt · 知识库 · 工具迭代）</text>
+
+  <!-- Output section -->
+  <line x1="400" y1="506" x2="400" y2="520" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="80" y="532" font-family="'Helvetica Neue', Arial, 'PingFang SC', sans-serif"
+        font-size="10" font-weight="700" fill="#64748b">[ 输出 ]</text>
+  <text x="80" y="546" font-family="'Helvetica Neue', Arial, 'PingFang SC', sans-serif"
+        font-size="11" fill="#475569">技能认证记录 + 新版本数字员工 + 强化分析报告（存档）</text>
+</svg>

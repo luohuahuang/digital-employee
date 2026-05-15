@@ -1,0 +1,110 @@
+# Risk Identification: Third-Party Logistics Integration
+# Tests ability to identify risks in external system integrations
+id: "qa-risk-third-party-integration-001"
+role: "QA"
+skill: "risk_identification"
+scenario: "Identify risks when integrating a new logistics provider API"
+difficulty: "L2"
+origin: "designed"
+tags: [risk, integration, third_party, logistics, failure_modes, SLA]
+
+input:
+  message: |
+    We're integrating a new logistics provider, FastShip, for order fulfillment. Today we use a single in-house logistics system. We want to add FastShip as a second provider to reduce dependence and add capacity.
+
+    **Integration Overview:**
+    - FastShip API: REST, rate limit 100 req/sec, SLA 99.5% uptime, response time <2s
+    - Our fulfillment service calls FastShip API to create shipments and track status
+    - FastShip sends webhooks for status updates: picked, packed, shipped, delivered, exception
+    - Data flow: Order → Fulfillment Service → FastShip API ↔ FastShip webhooks ← Our webhook handler
+    - Migration plan: Start with 20% of orders, scale to 50% if successful
+
+    **Business Context:**
+    - Order volume: 10k orders/day
+    - Peak hours: 8am-11am, 7pm-9pm (2k orders/hour)
+    - Current system: handles 100% of orders, well-tested, stable
+
+    **Questions:**
+    What could go wrong? What failure modes should we plan for? What mapping errors might occur? What operational issues might we face?
+
+rules:
+  - type: contains_any
+    values: ["API", "webhook", "failure", "timeout", "rate limit"]
+    fail_message: "Did not address API and webhook failure scenarios"
+  - type: contains_any
+    values: ["mapping", "data", "format", "field", "mismatch", "transformation"]
+    fail_message: "Did not identify data mapping and transformation risks"
+  - type: contains_any
+    values: ["SLA", "uptime", "response time", "capacity"]
+    fail_message: "Did not address SLA and performance guarantees"
+
+criteria:
+  - id: api_failure_modes
+    description: "Are API failure modes identified?"
+    weight: 0.30
+    rubric:
+      3: "Identifies: (1) API timeout (>2s), rate limiting (>100 req/sec during peak), (2) Transient errors (5xx), (3) Invalid request format (4xx), (4) SLA miss (0.5% downtime = 3.6 hours/month), (5) Retry strategy: how many retries, exponential backoff, (6) Fallback: send to in-house system if FastShip fails, (7) Idempotency: prevent duplicate shipments on retry"
+      2: "Identifies 4-5 failure modes"
+      1: "Identifies 2-3 failure modes"
+      0: "No API failure modes identified"
+
+  - id: data_mapping_risks
+    description: "Are data mapping and format mismatches identified?"
+    weight: 0.25
+    rubric:
+      3: "Identifies: (1) Address format: FastShip may not support all address fields (apt #, suite), (2) SKU mismatch: our product IDs vs FastShip product IDs, (3) Weight/dimensions: rounding or unit differences, (4) Tracking number format: FastShip tracking format differs from ours, (5) Validation: FastShip rejects invalid data silently vs loud error"
+      2: "Identifies 3-4 data mapping risks"
+      1: "Identifies 1-2 risks"
+      0: "No data mapping risks identified"
+
+  - id: webhook_reliability
+    description: "Are webhook delivery and processing risks identified?"
+    weight: 0.25
+    rubric:
+      3: "Identifies: (1) Webhook delivery failure (FastShip can't reach us), (2) Duplicate webhooks (status update sent twice), (3) Out-of-order webhooks (delivered before shipped), (4) Missing webhooks (picked → shipped, skipped packed), (5) Webhook signature validation (security), (6) Idempotency: same webhook processed twice creates duplicate status updates"
+      2: "Identifies 3-4 webhook risks"
+      1: "Identifies 1-2 risks"
+      0: "No webhook risks identified"
+
+  - id: operational_risks
+    description: "Are operational readiness and monitoring risks identified?"
+    weight: 0.15
+    rubric:
+      3: "Identifies: (1) Gradual rollout (20% → 50%) gives safety, (2) Monitoring: track FastShip integration metrics (success rate, latency), (3) Dashboards: FastShip status vs in-house system status, (4) Runbook: if FastShip fails, manual steps to switch orders to in-house system, (5) Reconciliation: verify shipment status matches FastShip actual status daily"
+      2: "Identifies 3-4 operational concerns"
+      1: "Identifies 1-2 concerns"
+      0: "No operational concerns"
+
+  - id: sla_mismatch
+    description: "Is the SLA mismatch with existing system addressed?"
+    weight: 0.05
+    rubric:
+      3: "Notes: 'FastShip SLA is 99.5% (3.6h downtime/month). Our current system has better uptime (assume 99.9%). FastShip might be less reliable. During outages, we must fall back to in-house system.'"
+      2: "Mentions SLA differences"
+      1: "Touches on SLA"
+      0: "No SLA discussion"
+
+expected_keywords:
+  - "API"
+  - "webhook"
+  - "failure"
+  - "timeout"
+  - "mapping"
+  - "data"
+  - "SLA"
+  - "uptime"
+  - "fallback"
+
+mentor_criteria:
+  - "Identifies API timeout, rate limiting, and transient error scenarios"
+  - "Identifies data format mismatches (address, SKU, tracking number)"
+  - "Identifies webhook delivery and duplicate processing risks"
+  - "Identifies out-of-order webhook scenarios"
+  - "Identifies SLA mismatch with current system"
+  - "Recommends fallback to in-house system if FastShip fails"
+  - "Recommends idempotency and retry strategies"
+  - "Recommends monitoring and dashboards for integration health"
+
+auto_score_weight: 0.40
+mentor_score_weight: 0.60
+pass_threshold: 75

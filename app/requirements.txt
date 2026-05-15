@@ -1,0 +1,26 @@
+# 核心框架
+langgraph>=0.2.0
+anthropic>=0.40.0   # Claude API
+openai>=1.0.0       # GPT-4 API（可选，通过 LLM_PROVIDER 切换）
+
+# RAG / 向量库（本地，无需服务器）
+# embedding 改用 OpenAI API，彻底去掉 torch/sentence-transformers 依赖
+chromadb>=0.5.0
+
+# 工具库
+pyyaml>=6.0
+python-dotenv>=1.0.0
+rich>=13.0.0
+pypdf>=4.0.0        # PDF 解析
+requests>=2.31.0    # Confluence REST API 调用
+
+# Web server
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+sqlalchemy>=2.0.0
+python-multipart>=0.0.9
+websockets>=12.0
+playwright>=1.44.0
+markdown>=3.5.0         # HTML docs portal (docs/build.py)
+pymdown-extensions>=10.0  # tasklist extension for docs/build.py
+

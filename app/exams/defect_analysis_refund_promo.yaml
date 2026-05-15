@@ -1,0 +1,124 @@
+# Defect Analysis: Refund Amount Calculation with Promotional Pricing
+# Tests ability to analyze financial logic bugs involving refunds and discounts
+id: "qa-defect-analysis-refund-promo-001"
+role: "QA"
+skill: "defect_analysis"
+scenario: "Analyze refund calculation bug when item was purchased at promotional price"
+difficulty: "L2"
+origin: "production_failure"
+tags: [refund, promotion, pricing, financial, calculation]
+
+input:
+  message: |
+    We have a refund bug. Customer is complaining about incorrect refund amounts.
+
+    **Customer's Order:**
+    - Item: Laptop
+    - Original list price: $1000
+    - Flash sale discount: 20% off → sale price: $800
+    - Quantity: 1
+    - Customer paid: $800
+    - Tax (8%): $64
+    - Total paid: $864
+
+    **Customer Initiated Refund (full return)**
+    - Customer returns unopened laptop 5 days after purchase (within 30-day return window)
+    - Refund should be: $864 (full amount including tax)
+
+    **What Actually Happened:**
+    - Refund issued: $1000 (refunded the list price, not the promotional price!)
+    - Customer got back $1000 instead of $864
+    - System overpaid by $136
+
+    **Code (simplified):**
+    ```python
+    def calculate_refund(order_id, item_id, return_qty):
+        item = get_item_metadata(item_id)  # Fetches original list price
+        refund_amount = item.list_price * return_qty
+        tax = refund_amount * TAX_RATE
+        return refund_amount + tax
+    ```
+
+    1. What's the bug?
+    2. Why did the code use list price instead of what the customer actually paid?
+    3. What's the scope and impact? (How many customers affected?)
+    4. What test would catch this? (Think: partial refund, full refund, multiple items, etc.)
+    5. How do you fix it?
+
+rules:
+  - type: contains_any
+    values: ["list price", "promotional price", "sale price", "actual price", "paid"]
+    fail_message: "Did not identify the confusion between list price and actual paid price"
+  - type: contains_any
+    values: ["refund", "overpay", "overpaid", "extra"]
+    fail_message: "Did not recognize the refund amount error"
+  - type: contains_any
+    values: ["order", "order_item", "order_history", "historical"]
+    fail_message: "Did not identify that refund should use order history, not item metadata"
+
+criteria:
+  - id: bug_identification
+    description: "Is the bug clearly explained?"
+    weight: 0.35
+    rubric:
+      3: "Clearly states: 'The code fetches the current list price from item metadata, but should fetch the actual price the customer paid at order time. The list price ($1000) was different from the sale price ($800) paid.'"
+      2: "Identifies the list-vs-sale-price issue; explanation is mostly correct"
+      1: "Mentions pricing confusion but explanation is unclear"
+      0: "Incorrect or missing bug identification"
+
+  - id: financial_impact
+    description: "Is the financial impact calculated and scoped?"
+    weight: 0.30
+    rubric:
+      3: "Calculates: 'Customer refunded $1000 instead of $864 = $136 overpay per order. Scope: all returns during flash sales or any promotional period.' Identifies risk (company loses money, customer gains windfall refund)."
+      2: "Calculates the overpay amount; scope identified but incomplete"
+      1: "Identifies overpayment but doesn't quantify or scope"
+      0: "No financial impact analysis"
+
+  - id: root_cause
+    description: "Is the architectural root cause identified?"
+    weight: 0.20
+    rubric:
+      3: "Identifies: 'The function uses get_item_metadata(), which fetches current item data. It should use get_order_item() to fetch historical order data (what customer paid), or store paid_price in order_items table.'"
+      2: "Identifies that the code fetches from wrong source; explanation mostly correct"
+      1: "Mentions the issue but explanation lacks clarity"
+      0: "No root cause identified"
+
+  - id: test_scenarios
+    description: "Are specific test scenarios that would catch this proposed?"
+    weight: 0.10
+    rubric:
+      3: "Proposes: 'Refund test cases: (1) Purchase during flash sale, refund during same flash sale, (2) Purchase at sale price, refund after sale ends, (3) Partial refund (qty > 1), (4) Multiple items with different discounts.'"
+      2: "Proposes 2-3 test scenarios; at least 1 involves promotional pricing"
+      1: "Proposes test scenarios but none specifically test promotional pricing"
+      0: "No test scenarios proposed"
+
+  - id: fix_approach
+    description: "Is a correct fix proposed?"
+    weight: 0.05
+    rubric:
+      3: "Proposes: 'Fetch paid_price from order_items table (not item metadata). Use: refund = order_item.paid_price * qty, then add tax.' Or suggests storing paid_price in order records."
+      2: "Proposes a fix that addresses fetching from correct source"
+      1: "Mentions fix but lacks implementation clarity"
+      0: "No fix proposed"
+
+expected_keywords:
+  - "list price"
+  - "promotional"
+  - "sale price"
+  - "paid"
+  - "refund"
+  - "order history"
+  - "overpay"
+
+mentor_criteria:
+  - "Identifies that code uses list price instead of actual paid price"
+  - "Calculates the $136 overpayment"
+  - "Identifies scope: all returns during promotional periods"
+  - "Proposes fetching price from order history, not item metadata"
+  - "Suggests test cases for promotional pricing scenarios"
+  - "Addresses partial refund and multi-item scenarios"
+
+auto_score_weight: 0.40
+mentor_score_weight: 0.60
+pass_threshold: 75

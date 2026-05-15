@@ -1,0 +1,79 @@
+# Payment QA — Gateway Timeout & Retry Logic
+# Tests whether agent understands idempotency and the risks of
+# naive retry logic in payment flows (double charge risk).
+id: "qa-payment-retry-timeout-001"
+skill: "defect_analysis"
+scenario: "Payment gateway timeout — retry logic and double-charge risk"
+difficulty: "L2"
+origin: production_failure
+tags: [payment, retry, idempotency, timeout, double_charge]
+
+input:
+  message: |
+    We received 12 customer complaints this week about being charged twice
+    for the same order. Investigation shows the pattern:
+
+    1. User clicks "Pay Now"
+    2. Payment gateway returns HTTP 504 (timeout) after 30 seconds
+    3. Our backend marks the order as "payment_failed" and returns error to user
+    4. User clicks "Pay Now" again (thinking payment failed)
+    5. Second payment goes through
+    6. But the first payment also eventually succeeded (gateway was just slow)
+    7. Customer is charged twice
+
+    Please analyze this defect and recommend what tests we need.
+
+# ── Layer 1: Rules ─────────────────────────────────────────────────────────
+rules:
+  - type: contains_any
+    values: ["idempotency", "idempotent", "duplicate", "double charge", "double-charge"]
+    fail_message: "Did not identify idempotency as the core issue"
+  - type: contains_any
+    values: ["idempotency key", "deduplication", "reconciliation", "webhook", "callback"]
+    fail_message: "Did not suggest a concrete technical solution"
+
+# ── Layer 2: LLM-judge criteria ────────────────────────────────────────────
+criteria:
+  - id: root_cause_precision
+    description: "Does the agent correctly identify the root cause as missing idempotency?"
+    weight: 0.40
+    rubric:
+      3: "Identifies the exact failure: backend treats 504 as definitive failure without idempotency key; recommends idempotency key on payment requests so re-submission is deduplicated by the gateway"
+      2: "Identifies double charge risk and mentions retry logic but does not name idempotency key as the solution"
+      1: "Says 'add retry logic' without understanding that retry IS the problem without idempotency"
+      0: "Does not identify root cause; focuses only on UI/UX fix (e.g., 'disable the button')"
+
+  - id: test_coverage
+    description: "Does the agent recommend tests that cover the failure scenario and the fix?"
+    weight: 0.35
+    rubric:
+      3: "Recommends tests for: 504 timeout with eventual success (idempotency), 504 timeout with actual failure (real error), rapid double-click, gateway callback delay >30s, and reconciliation after mismatch"
+      2: "Covers timeout and double-click scenarios but misses reconciliation or callback delay"
+      1: "Suggests testing 'payment failure' generally, not the specific timeout-then-succeed pattern"
+      0: "No specific test recommendations"
+
+  - id: severity_and_urgency
+    description: "Is the severity assessment appropriate for a double-charge financial bug?"
+    weight: 0.25
+    rubric:
+      3: "Classifies as P0, cites financial harm + regulatory risk (PCI/consumer protection), recommends immediate hotfix and proactive refund for affected customers"
+      2: "Classifies as high priority with financial reasoning, but misses regulatory angle or proactive refund recommendation"
+      1: "Identifies as serious but underestimates (e.g., P2) or lacks financial impact reasoning"
+      0: "No severity assessment"
+
+# ── Backward-compatible fields ─────────────────────────────────────────────
+expected_keywords:
+  - "idempotency"
+  - "double charge"
+  - "P0"
+  - "reconciliation"
+
+mentor_criteria:
+  - "Correctly identifies missing idempotency key as root cause, not just 'retry logic'"
+  - "Recommends tests specifically for timeout-then-succeed scenario"
+  - "Classifies as P0 with financial + regulatory impact reasoning"
+  - "Recommends proactive refund for the 12 affected customers"
+
+auto_score_weight: 0.35
+mentor_score_weight: 0.65
+pass_threshold: 75

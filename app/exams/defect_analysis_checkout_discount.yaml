@@ -1,0 +1,114 @@
+# Defect Analysis: Checkout Discount Calculation Bug
+# Tests ability to analyze a bug, identify root cause, impact, and recommend a fix
+id: "qa-defect-analysis-checkout-discount-001"
+role: "QA"
+skill: "defect_analysis"
+scenario: "Analyze discount calculation bug with item-level vs cart-level order"
+difficulty: "L2"
+origin: "production_failure"
+tags: [discount, calculation, bug_analysis, cart_logic, financial]
+
+input:
+  message: |
+    We have a bug report from production. A customer says they were overcharged for an order.
+
+    **Customer's Order:**
+    - Item A: $50, quantity 2, item-level discount $5 off (coupon "ITEMDISC")
+    - Item B: $30, quantity 1, no item discount
+    - Cart-level discount: 10% off cart subtotal (coupon "CART10")
+
+    **Expected Calculation:**
+    1. Item A: $50 × 2 = $100, apply item discount → ($100 - $5) = $95
+    2. Item B: $30 × 1 = $30, no discount → $30
+    3. Subtotal: $95 + $30 = $125
+    4. Cart-level discount: 10% of $125 = $12.50
+    5. Final total: $125 - $12.50 = $112.50
+
+    **What Customer Actually Paid:**
+    $117.50
+
+    **Code Fragment (simplified):**
+    ```
+    subtotal = 0
+    for item in cart:
+        price = item.price * item.qty
+        subtotal += price
+        subtotal -= item.item_discount  # Subtracts item discount from running total
+
+    cart_discount = subtotal * 0.10
+    subtotal -= cart_discount
+
+    # Then applies 10% to subtotal that already had item discounts removed
+    ```
+
+    The customer paid $117.50. What's the bug? What went wrong? What's the impact? How do we fix it?
+
+rules:
+  - type: contains_any
+    values: ["application order", "order of application", "item-level", "cart-level", "sequence", "precedence"]
+    fail_message: "Did not identify the order-of-application issue"
+  - type: contains_any
+    values: ["10%", "percentage", "cart discount", "subtotal"]
+    fail_message: "Did not properly calculate the discount amounts"
+  - type: contains_any
+    values: ["root cause", "why", "because", "reason", "logic"]
+    fail_message: "Did not explain the root cause of the bug"
+
+criteria:
+  - id: root_cause_identification
+    description: "Is the root cause clearly identified?"
+    weight: 0.40
+    rubric:
+      3: "Clearly states: 'The code applies cart-level discount to the subtotal AFTER removing item-level discounts. It should calculate the cart-level discount on the ORIGINAL subtotal before item discounts, then subtract both.' Shows the incorrect calculation path."
+      2: "Identifies that the discount order is wrong; explanation is mostly correct but missing exact clarification of before/after subtotal"
+      1: "Mentions discount order issue but explanation is incomplete or unclear"
+      0: "Does not identify root cause or incorrect identification"
+
+  - id: impact_assessment
+    description: "Is the financial impact analyzed?"
+    weight: 0.35
+    rubric:
+      3: "Calculates the actual vs expected amounts ($117.50 vs $112.50 = $5 overcharge), identifies who is harmed (customers), scope (all orders with both item-level AND cart-level discounts), and severity (medium-high because it affects payments)"
+      2: "Calculates the overcharge amount; scope is identified but incomplete (e.g., didn't mention 'both discount types' requirement)"
+      1: "Identifies that the customer paid more but doesn't quantify or scope the impact"
+      0: "No impact analysis"
+
+  - id: fix_recommendation
+    description: "Is a correct fix proposed?"
+    weight: 0.20
+    rubric:
+      3: "Proposes: 'Calculate original subtotal first, then apply item discounts from that, then calculate cart-level discount from original subtotal, then subtract both.' Includes either pseudocode or step-by-step approach."
+      2: "Proposes a mostly correct fix; may have minor implementation details missing"
+      1: "Suggests fixing the order but explanation is vague or incomplete"
+      0: "No fix recommendation or incorrect fix"
+
+  - id: refund_strategy
+    description: "Is a customer remediation strategy suggested?"
+    weight: 0.05
+    rubric:
+      3: "Suggests: 'Issue refund of $5 to affected customer, identify all affected orders from [date range], issue refunds/credits, notify customers'"
+      2: "Suggests refund but without identifying the scope of affected customers"
+      1: "Mentions refund but no strategy"
+      0: "No refund discussion"
+
+expected_keywords:
+  - "item discount"
+  - "cart discount"
+  - "order of application"
+  - "application order"
+  - "root cause"
+  - "$125"
+  - "$112.50"
+  - "overcharge"
+
+mentor_criteria:
+  - "Identifies that the code applies discounts in the wrong order"
+  - "Calculates the expected total ($112.50) and explains the $5 discrepancy"
+  - "Explains why the calculation resulted in $117.50 (10% applied to reduced subtotal)"
+  - "Proposes a fix that recalculates in the correct order"
+  - "Identifies scope of impact (all orders with both discount types)"
+  - "Suggests customer refund process"
+
+auto_score_weight: 0.40
+mentor_score_weight: 0.60
+pass_threshold: 75

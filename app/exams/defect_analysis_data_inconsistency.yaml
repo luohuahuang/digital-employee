@@ -1,0 +1,119 @@
+# Defect Analysis: Order Status Inconsistency Between Services
+# Tests ability to analyze distributed system bugs and eventual consistency issues
+id: "qa-defect-analysis-data-inconsistency-001"
+role: "QA"
+skill: "defect_analysis"
+scenario: "Analyze order status inconsistency between order service and payment service"
+difficulty: "L2"
+origin: "production_failure"
+tags: [distributed_systems, eventual_consistency, data_inconsistency, services]
+
+input:
+  message: |
+    We have a data inconsistency bug affecting order tracking. Here's what happened:
+
+    **System Architecture:**
+    - Order Service: owns order records, exposes order status (pending, paid, shipped, delivered, refunded)
+    - Payment Service: processes payments, maintains transaction logs
+    - When payment succeeds, Payment Service sends a webhook to Order Service
+    - Order Service subscribes to the webhook and updates order status from "pending" to "paid"
+
+    **Bug Report:**
+    Customer says:
+    - They placed order #12345 for $150
+    - Payment succeeded (they saw the charge on their credit card)
+    - But Order Service shows status "pending" (not "paid")
+    - Payment Service shows the transaction as "successful"
+    - Customer is confused and thinks the payment didn't go through
+
+    **Investigation:**
+    - Payment Service: Order #12345 has transaction status "success" (confirmed payment processed and charged)
+    - Order Service: Order #12345 has status "pending" (webhook never received or not processed)
+    - Credit card processor: confirmed $150 charge was processed and settled
+
+    **Questions:**
+    1. Why is Order Service out of sync with Payment Service?
+    2. What are the possible failure scenarios that could cause this?
+    3. What's the business impact? (Customer confusion, retry risk, other?)
+    4. How would you test this bug?
+    5. What's a robust fix that handles future similar issues?
+
+rules:
+  - type: contains_any
+    values: ["webhook", "event", "async", "asynchronous", "eventual consistency"]
+    fail_message: "Did not address the asynchronous communication and webhook delivery issue"
+  - type: contains_any
+    values: ["inconsistent", "out of sync", "mismatch", "discrepancy"]
+    fail_message: "Did not explain the synchronization problem"
+  - type: contains_any
+    values: ["retry", "compensation", "reconciliation", "idempotent"]
+    fail_message: "Did not propose a recovery or prevention mechanism"
+
+criteria:
+  - id: root_cause_scenarios
+    description: "Are possible failure scenarios identified?"
+    weight: 0.35
+    rubric:
+      3: "Identifies 3+ scenarios: (a) webhook sent but Order Service was down, (b) webhook lost in transit (no retry), (c) Order Service processed webhook but DB write failed, (d) webhook delivered but idempotency check failed. Explains which is most likely."
+      2: "Identifies 2 scenarios with reasonable detail"
+      1: "Identifies 1 scenario or mentions webhooks without specific failure modes"
+      0: "No scenarios identified"
+
+  - id: impact_analysis
+    description: "Is the customer and business impact assessed?"
+    weight: 0.25
+    rubric:
+      3: "Identifies multiple impacts: (a) customer confusion (saw charge but order shows pending), (b) risk of retry (customer might re-submit payment), (c) support burden (customer contacts support), (d) analytics/reporting broken (order metrics show pending not paid)"
+      2: "Identifies 2-3 impacts with some depth"
+      1: "Identifies 1 impact or impact is mentioned vaguely"
+      0: "No impact analysis"
+
+  - id: recovery_approach
+    description: "Is a robust fix proposed?"
+    weight: 0.25
+    rubric:
+      3: "Proposes: (a) idempotent webhook handling (store processed webhook IDs to prevent re-processing), (b) webhook retry with exponential backoff, (c) background reconciliation job that periodically syncs Payment Service with Order Service (catches missed webhooks), (d) explicit mechanism to recover from divergence"
+      2: "Proposes 2-3 mechanisms; covers webhook reliability and sync"
+      1: "Proposes 1 mechanism or approach is incomplete"
+      0: "No fix proposed"
+
+  - id: testing_strategy
+    description: "Are specific test scenarios proposed?"
+    weight: 0.10
+    rubric:
+      3: "Proposes: 'Test webhook retry: send payment success, Order Service is down, wait for retry, bring Order Service up, verify status updates. Test idempotency: send same webhook twice with same ID, verify only processed once. Test reconciliation: manually create mismatch, run reconciliation job, verify fix.'"
+      2: "Proposes 2-3 test scenarios"
+      1: "Proposes basic testing but missing specific scenarios"
+      0: "No testing strategy"
+
+  - id: architecture_understanding
+    description: "Is the distributed system complexity understood?"
+    weight: 0.05
+    rubric:
+      3: "Demonstrates understanding: 'This is an eventual consistency problem. Asynchronous communication can fail. Order Service must either have retry logic and idempotency, or a periodic reconciliation process must exist.'"
+      2: "Shows basic understanding of async communication"
+      1: "Mentions distributed system but explanation is surface-level"
+      0: "No architectural understanding"
+
+expected_keywords:
+  - "webhook"
+  - "async"
+  - "inconsistency"
+  - "payment"
+  - "order status"
+  - "sync"
+  - "retry"
+  - "eventual consistency"
+
+mentor_criteria:
+  - "Identifies possible webhook delivery failures"
+  - "Explains why Order Service is out of sync (webhook never processed or lost)"
+  - "Identifies customer impact: confusion, retry risk, support load"
+  - "Proposes idempotent webhook handling"
+  - "Proposes retry mechanism or background reconciliation"
+  - "Suggests specific tests for async failure scenarios"
+  - "Demonstrates understanding of eventual consistency"
+
+auto_score_weight: 0.40
+mentor_score_weight: 0.60
+pass_threshold: 75

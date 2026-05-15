@@ -1,0 +1,37 @@
+# Exam: System design — high-availability order service
+id: "dev-architecture-001"
+skill: "system_design"
+scenario: "Design a high-availability order placement service for 100k RPS"
+difficulty: "L3"
+role: "Dev"
+
+input:
+  message: |
+    Design a high-availability order placement service that must handle 100,000 requests per second at peak,
+    with the following constraints:
+    - P99 latency < 200ms
+    - 99.99% uptime SLA
+    - Orders must never be duplicated or lost
+    - Budget: medium-sized cloud deployment
+
+    Describe: architecture layers, data storage choices, idempotency strategy, and failure modes.
+
+expected_keywords:
+  - "idempotency key"
+  - "load balancer"
+  - "database"
+  - "queue"
+  - "cache"
+  - "retry"
+  - "single point of failure"
+
+mentor_criteria:
+  - "Addresses idempotency (idempotency key or deduplication store)"
+  - "Separates write path (order creation) from read path with appropriate caching"
+  - "Identifies at least two potential single points of failure and mitigates them"
+  - "Mentions async processing for non-critical post-order actions (email, analytics)"
+  - "Justifies storage choices with rationale (e.g., why relational vs. NoSQL for orders)"
+
+auto_score_weight: 0.4
+mentor_score_weight: 0.6
+threshold: 65

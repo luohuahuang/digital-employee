@@ -1,0 +1,34 @@
+# Exam: Metrics analysis — diagnose a drop in checkout conversion
+id: "pm-metrics-001"
+skill: "data_analysis"
+scenario: "Diagnose a 15% drop in checkout conversion rate"
+difficulty: "L2"
+role: "PM"
+
+input:
+  message: |
+    Our checkout conversion rate dropped 15% last Tuesday (from 72% to 57%) and has not recovered.
+    No code was deployed on that day. The drop affects all platforms (iOS, Android, Web).
+
+    Given only this information, what is your diagnostic framework?
+    What data would you pull first, and what hypotheses would you form?
+
+expected_keywords:
+  - "hypothesis"
+  - "segment"
+  - "funnel"
+  - "external"
+  - "payment"
+  - "A/B"
+  - "cohort"
+
+mentor_criteria:
+  - "Structures investigation as: segment first, then drill down (not random data pulls)"
+  - "Considers external factors (payment gateway, carrier outage, competitor event)"
+  - "Asks about funnel drop-off: which checkout step has the biggest increase in abandonment"
+  - "Proposes specific SQL or analytics queries or dashboards to validate each hypothesis"
+  - "Does not jump to conclusions without data (avoids single-hypothesis anchoring)"
+
+auto_score_weight: 0.4
+mentor_score_weight: 0.6
+threshold: 65

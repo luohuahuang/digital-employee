@@ -1,0 +1,75 @@
+# Bug Report Quality
+# Tests whether agent can write a well-structured, actionable bug report
+# from a vague user complaint. The output should be ready to hand to a developer.
+id: "qa-bug-report-quality-001"
+skill: "bug_reporting"
+scenario: "Write a developer-ready bug report from a vague user complaint"
+difficulty: "L1"
+origin: designed
+tags: [bug_report, communication, developer_handoff]
+
+input:
+  message: |
+    A user sent this complaint via support chat:
+
+    "The checkout isn't working. I tried to buy something but it just
+    keeps spinning and nothing happens. Really frustrating."
+
+    Please write a proper bug report for the development team.
+    You can make reasonable assumptions about our standard e-commerce platform,
+    but clearly label what is observed fact vs. assumption.
+
+# ── Layer 1: Rules ─────────────────────────────────────────────────────────
+rules:
+  - type: contains_any
+    values: ["reproduction", "reproduce", "steps to reproduce", "repro"]
+    fail_message: "Bug report missing reproduction steps"
+  - type: contains_any
+    values: ["expected", "actual", "observed"]
+    fail_message: "Bug report missing expected vs actual behavior"
+
+# ── Layer 2: LLM-judge criteria ────────────────────────────────────────────
+criteria:
+  - id: report_structure
+    description: "Does the bug report follow standard structure?"
+    weight: 0.30
+    rubric:
+      3: "Contains all required sections: Title, Steps to Reproduce, Expected Result, Actual Result, Severity, and lists what info is still needed"
+      2: "Contains most sections but missing 1-2 (e.g., no severity or no 'info needed' section)"
+      1: "Has only title and description; missing structured sections"
+      0: "Unstructured prose — not usable as a bug report"
+
+  - id: actionability
+    description: "Can a developer act on this report without asking follow-up questions?"
+    weight: 0.35
+    rubric:
+      3: "Clearly distinguishes known facts from assumptions; lists the specific information needed to reproduce (browser, device, account type, items in cart)"
+      2: "Partially actionable but a developer would need to ask 2-3 clarifying questions"
+      1: "Mostly assumptions presented as facts; developer would need significant follow-up"
+      0: "Not actionable — just rephrases the user complaint"
+
+  - id: severity_assessment
+    description: "Is severity assigned with appropriate reasoning?"
+    weight: 0.35
+    rubric:
+      3: "Assigns tentative severity (e.g., P1/High) with reasoning: blocks checkout = revenue impact, but notes it may be user-specific until reproduced"
+      2: "Assigns severity but without clear reasoning or without acknowledging uncertainty"
+      1: "Assigns severity that seems miscalibrated (e.g., Low for a checkout blocker)"
+      0: "No severity assessment"
+
+# ── Backward-compatible fields ─────────────────────────────────────────────
+expected_keywords:
+  - "steps to reproduce"
+  - "expected"
+  - "actual"
+  - "severity"
+
+mentor_criteria:
+  - "Report has clear structure: title, repro steps, expected/actual, severity"
+  - "Distinguishes confirmed facts from assumptions — does not present guesses as facts"
+  - "Lists what information is still needed to fully reproduce the bug"
+  - "Severity is assigned with a rationale, even if tentative"
+
+auto_score_weight: 0.4
+mentor_score_weight: 0.6
+pass_threshold: 70

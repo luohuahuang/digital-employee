@@ -1,0 +1,104 @@
+# Test Case Design: Shopping Cart Boundary Conditions
+# Tests ability to design test cases for cart edge cases and inventory interactions
+id: "qa-tc-design-cart-boundary-001"
+role: "QA"
+skill: "test_case_design"
+scenario: "Design test cases for shopping cart boundary conditions and inventory changes"
+difficulty: "L2"
+origin: "designed"
+tags: [cart, boundary_conditions, inventory, state_change, test_case_design]
+
+input:
+  message: |
+    We need test cases for shopping cart edge cases. Here's what we need to cover:
+
+    **Business Logic:**
+    - Cart can hold minimum 1 item, maximum 100 items per cart
+    - Each item has a quantity limit: minimum 1, maximum 10 per SKU
+    - Cart persists for 7 days; expires after inactivity
+    - Stock can change between when user adds item and when they checkout
+    - If an item goes out of stock while in cart, user gets a warning at checkout (not instant removal)
+    - Checkout is blocked if ANY item in cart is out of stock at checkout time
+    - Duplicate SKU additions merge quantities (don't create duplicate cart line items)
+    - If user adds 8 units, then adds 5 more (total 13), the second add should be rejected
+
+    **Edge Cases to Consider:**
+    - Empty cart (0 items) cannot proceed to checkout
+    - Cart with exactly 100 items
+    - Adding 101st item
+    - Stock change: item has 5 units, user adds 3, 2 more sold → 3 available, user tries checkout with 3 → should succeed
+    - Stock change: item has 5 units, user adds 5, all sold → 0 available, user tries checkout → checkout blocked
+    - Cart age: 7 days old but still has activity
+    - Adding item that exceeds per-SKU limit (9 in cart, add 5 more)
+
+    Design comprehensive test cases. What scenarios would you test?
+
+rules:
+  - type: contains_any
+    values: ["stock", "inventory", "out of stock", "available", "sold"]
+    fail_message: "Did not address inventory availability and stock changes between add and checkout"
+  - type: contains_any
+    values: ["maximum", "limit", "boundary", "100", "10", "per SKU", "per-SKU"]
+    fail_message: "Did not test cart size and per-SKU quantity limits"
+  - type: contains_any
+    values: ["empty", "0 items", "minimum", "blank cart"]
+    fail_message: "Did not test empty cart edge case"
+
+criteria:
+  - id: boundary_coverage
+    description: "Are all quantity and size boundaries tested?"
+    weight: 0.35
+    rubric:
+      3: "Tests all 5 boundaries: 0 items, 1 item (minimum), 100 items (maximum), 101 items (over limit), and per-SKU limits (1, 10, 11)"
+      2: "Tests 4 boundaries with reasonable precision; one missing or vague"
+      1: "Tests 2-3 boundaries; limited precision (e.g., 'big number' instead of 100)"
+      0: "Fewer than 2 boundaries tested"
+
+  - id: inventory_dynamics
+    description: "Are stock changes and inventory interactions tested?"
+    weight: 0.30
+    rubric:
+      3: "Tests 3+ inventory scenarios: stock decreases between add and checkout (remains sufficient), stock decreases below cart qty, stock fully depleted, duplicate SKU merge behavior"
+      2: "Tests 2 inventory scenarios; missing edge cases like merge behavior or warning vs blocking"
+      1: "Tests 1 inventory scenario; limited depth"
+      0: "No inventory change scenarios tested"
+
+  - id: cart_state_precision
+    description: "Are expected results specific and actionable?"
+    weight: 0.20
+    rubric:
+      3: "Each test case has precise expected results: 'add 101st item: 101st item rejected, cart remains 100 items' or 'checkout with 1 out-of-stock item: warning shown, checkout blocked, user must remove or wait'"
+      2: "Most expected results are specific; some vague (e.g., 'cart behaves correctly')"
+      1: "Expected results are mostly descriptions, not specific outcomes"
+      0: "No expected results defined"
+
+  - id: scenario_prioritization
+    description: "Are test scenarios organized by priority or risk?"
+    weight: 0.15
+    rubric:
+      3: "Organizes tests by criticality: critical path (1 item, add/remove, checkout), boundaries (0, 100, 101), inventory risks, cart expiry"
+      2: "Some organization present; not clearly risk-ranked"
+      1: "Tests listed but no prioritization"
+      0: "No organization"
+
+expected_keywords:
+  - "cart"
+  - "boundary"
+  - "stock"
+  - "inventory"
+  - "limit"
+  - "100"
+  - "10"
+  - "empty"
+
+mentor_criteria:
+  - "Tests empty cart (0 items) blocking checkout"
+  - "Tests both per-cart limit (100) and per-SKU limit (10) with clear boundary values"
+  - "Tests stock changes during the shopping session with specific scenarios"
+  - "Tests duplicate SKU merge behavior (adding same item twice)"
+  - "Tests quantity overflow (adding more than remaining limit)"
+  - "Defines expected results precisely (not vague descriptions)"
+
+auto_score_weight: 0.40
+mentor_score_weight: 0.60
+pass_threshold: 75

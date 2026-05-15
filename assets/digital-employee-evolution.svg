@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 420" role="img" aria-labelledby="title desc">
+  <title id="title">Digital Employee 1.0 / 2.0 / 3.0 Evolution and Collaboration</title>
+  <desc id="desc">Left to right shows three generations of evolution; below is the 3.0 orchestration hub scheduling 1.0 and 2.0.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8fafc"/>
+      <stop offset="100%" style="stop-color:#eef2f7"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#334155"/>
+    </marker>
+    <marker id="arrow-dashed" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+    </marker>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#bg)"/>
+  <text x="460" y="36" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="18" font-weight="600" fill="#0f172a">Digital Employee Evolution and Collaboration</text>
+  <text x="460" y="58" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" fill="#64748b">Three generations stack on each other, not replacing; 1.0 / 2.0 / 3.0 collaborate long-term</text>
+  <g filter="url(#shadow)">
+    <rect x="48" y="82" width="220" height="118" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+    <rect x="348" y="82" width="220" height="118" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+    <rect x="648" y="82" width="220" height="118" rx="10" fill="#ffffff" stroke="#0ea5e9" stroke-width="2"/>
+  </g>
+  <text x="158" y="108" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="15" font-weight="600" fill="#0f172a">1.0 Automation</text>
+  <text x="158" y="132" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" fill="#475569">RPA · Scripts · Pipelines</text>
+  <text x="158" y="156" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" fill="#64748b">Rule-based · Explainable · Cost-effective</text>
+  <text x="458" y="108" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="15" font-weight="600" fill="#0f172a">2.0 Intelligence</text>
+  <text x="458" y="132" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" fill="#475569">Traditional AI · NLP · Specialized Models</text>
+  <text x="458" y="156" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" fill="#64748b">Task-specific · Limited generalization · KB matching</text>
+  <text x="758" y="108" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="15" font-weight="600" fill="#0f172a">3.0 Humanization</text>
+  <text x="758" y="132" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" fill="#475569">LLMs · Agents · Natural Language</text>
+  <text x="758" y="156" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" fill="#64748b">Planning &amp; tool calling · High cost · Compliance required</text>
+  <line x1="268" y1="141" x2="338" y2="141" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="568" y1="141" x2="638" y2="141" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="303" y="134" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" fill="#94a3b8">Evolution</text>
+  <text x="603" y="134" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" fill="#94a3b8">Evolution</text>
+  <rect x="248" y="248" width="424" height="92" rx="12" fill="#0f172a" fill-opacity="0.92"/>
+  <text x="460" y="280" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="600" fill="#f8fafc">3.0 as Orchestration Hub</text>
+  <text x="460" y="302" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" fill="#94a3b8">Schedules 1.0 (pipelines, RPA) and 2.0 (small models, KBs) as tools, not replacements</text>
+  <text x="460" y="324" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" fill="#64748b">Human-machine collaboration · Complex reasoning and long-chain tasks</text>
+  <line x1="158" y1="248" x2="158" y2="202" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow-dashed)"/>
+  <line x1="458" y1="248" x2="458" y2="202" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow-dashed)"/>
+  <text x="168" y="232" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" fill="#64748b">Dispatched as tool</text>
+  <text x="468" y="232" font-family="Helvetica Neue, Arial, sans-serif" font-size="10" fill="#64748b">Dispatched as tool</text>
+  <text x="460" y="388" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" fill="#475569">Use cases: 1.0/2.0 favor rules and repetition; 3.0 favors exploration, reasoning and rich interaction — all three coexist</text>
+</svg>

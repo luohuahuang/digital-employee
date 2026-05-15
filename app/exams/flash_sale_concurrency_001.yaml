@@ -1,0 +1,76 @@
+# Promotion QA — Flash Sale Concurrency & Inventory Race Conditions
+# Tests whether agent can design tests for high-concurrency scenarios
+# specific to flash sales, including overselling and fairness.
+id: "qa-flash-sale-concurrency-001"
+skill: "test_case_design"
+scenario: "Flash sale — concurrency, overselling prevention, and inventory race conditions"
+difficulty: "L3"
+origin: designed
+tags: [promotion, flash_sale, concurrency, race_condition, inventory]
+
+input:
+  message: |
+    We're launching a flash sale next month:
+    - 500 units of a product at 50% off
+    - Sale lasts exactly 10 minutes
+    - Each user can buy at most 2 units
+    - Expected peak: ~5,000 concurrent users hitting "Buy" at the same time
+
+    Please design the test strategy for this feature.
+    Focus on what could go wrong, not just the happy path.
+
+# ── Layer 1: Rules ─────────────────────────────────────────────────────────
+rules:
+  - type: contains_any
+    values: ["oversell", "over-sell", "race condition", "concurrent", "concurrency", "simultaneous"]
+    fail_message: "Did not address the core concurrency/overselling risk"
+  - type: contains_any
+    values: ["load", "performance", "stress", "spike", "5000", "5,000"]
+    fail_message: "Did not address load/performance testing for peak traffic"
+
+# ── Layer 2: LLM-judge criteria ────────────────────────────────────────────
+criteria:
+  - id: concurrency_risk_identification
+    description: "Does the agent identify and design tests for the key race conditions?"
+    weight: 0.40
+    rubric:
+      3: "Identifies at least 3 race conditions: overselling (>500 units sold), per-user limit bypass (buy 3+ via concurrent requests), and double-charge on retry; designs specific test scenarios for each"
+      2: "Identifies overselling but misses per-user limit bypass or double-charge scenarios"
+      1: "Mentions concurrency as a concern but designs only functional happy-path tests"
+      0: "No concurrency testing addressed"
+
+  - id: load_test_strategy
+    description: "Does the agent propose a meaningful load test strategy for 5,000 concurrent users?"
+    weight: 0.30
+    rubric:
+      3: "Proposes ramp-up pattern (not all 5,000 at once), defines success criteria (e.g., p99 response <2s, zero oversell), and identifies breaking points to find"
+      2: "Suggests load testing with 5,000 users but lacks ramp-up design or success criteria"
+      1: "Mentions 'run a load test' without any specifics"
+      0: "No load testing mentioned"
+
+  - id: sale_boundary_testing
+    description: "Does the agent test the exact start/end time boundaries of the sale?"
+    weight: 0.30
+    rubric:
+      3: "Tests: purchase 1 second before sale starts (should fail), purchase at T+0 (should succeed), purchase at T+10min exactly (edge case), purchase after sale ends (should fail); also tests early sellout scenario"
+      2: "Tests start and end boundaries but misses the exact-second edge case or early sellout"
+      1: "Only tests that sale is active or inactive, no boundary precision"
+      0: "No time boundary testing"
+
+# ── Backward-compatible fields ─────────────────────────────────────────────
+expected_keywords:
+  - "oversell"
+  - "concurrent"
+  - "load"
+  - "race condition"
+  - "inventory"
+
+mentor_criteria:
+  - "Identifies overselling, per-user limit bypass, and double-charge as distinct race conditions"
+  - "Load test strategy includes ramp-up, success criteria, and breaking point discovery"
+  - "Sale start/end time boundaries tested at second precision including early sellout"
+  - "Tests for user experience during and after sellout (waitlist, error messaging)"
+
+auto_score_weight: 0.35
+mentor_score_weight: 0.65
+pass_threshold: 75

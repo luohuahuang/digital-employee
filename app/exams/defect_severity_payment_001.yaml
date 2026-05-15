@@ -1,0 +1,75 @@
+# Defect Severity Classification — P0 Payment Crash
+# Origin: production_failure (recreated from real incident)
+# Tests whether agent can correctly identify blocker-level severity,
+# pin the affected component, and give a concrete release recommendation.
+id: "qa-defect-severity-payment-001"
+skill: "defect_analysis"
+scenario: "Payment crash severity classification and release recommendation"
+difficulty: "L2"
+origin: production_failure
+tags: [severity, payment, blocker, release]
+
+input:
+  message: |
+    Please analyze this defect report:
+
+    Title: Checkout page freezes after clicking "Pay"
+    Description: After the user clicks the "Pay Now" button on the checkout page,
+    the page hangs for 30 seconds and then returns HTTP 500.
+    Reproduction rate: 100%, affects all users.
+    Environment: Production.
+    First reported: 2 hours ago, 47 user complaints so far.
+
+    Please give me your assessment: severity level, which component is affected,
+    and whether this blocks the current release.
+
+# ── Layer 1: Rules (must pass, otherwise hard fail) ────────────────────────
+rules:
+  - type: contains_any
+    values: ["P0", "blocker", "blocks release", "block the release", "block release", "critical", "immediate"]
+    fail_message: "Did not express blocker-level urgency"
+
+# ── Layer 2: LLM-judge criteria with rubric ────────────────────────────────
+criteria:
+  - id: severity_classification
+    description: "Is severity level correctly identified as P0/blocker?"
+    weight: 0.4
+    rubric:
+      3: "Explicitly states P0 or blocker with clear reasoning (100% repro + all users affected + payment blocked)"
+      2: "Identifies as high severity but reasoning is vague or incomplete"
+      1: "Underestimates severity (e.g., classifies as P1 or P2)"
+      0: "Does not mention severity level at all"
+
+  - id: component_identification
+    description: "Does the agent correctly identify the affected component?"
+    weight: 0.3
+    rubric:
+      3: "Specifically names payment service / checkout flow / payment gateway, not just 'backend'"
+      2: "Mentions backend or server-side but does not narrow down to payment component"
+      1: "Identifies an unrelated component"
+      0: "Does not mention affected component"
+
+  - id: release_recommendation
+    description: "Does the agent give a clear release recommendation?"
+    weight: 0.3
+    rubric:
+      3: "Explicitly recommends blocking release or immediate hotfix with rationale"
+      2: "Implies urgency but recommendation is not explicit"
+      1: "Recommends fixing in next release (inappropriate for P0)"
+      0: "No release recommendation given"
+
+# ── Backward-compatible fields for current evaluator ──────────────────────
+expected_keywords:
+  - "P0"
+  - "payment"
+  - "block"
+
+mentor_criteria:
+  - "Correctly classifies as P0/blocker with clear reasoning"
+  - "Identifies payment service as the affected component"
+  - "Explicitly recommends blocking release or immediate hotfix"
+  - "Tone is appropriately urgent without being alarmist"
+
+auto_score_weight: 0.4
+mentor_score_weight: 0.6
+pass_threshold: 75

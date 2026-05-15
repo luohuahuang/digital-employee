@@ -1,0 +1,36 @@
+# Exam: Incident response — production database CPU spike
+id: "sre-incident-001"
+skill: "incident_response"
+scenario: "Production PostgreSQL CPU at 98% — triage and remediation"
+difficulty: "L2"
+role: "SRE"
+
+input:
+  message: |
+    ALERT: Production PostgreSQL CPU has been at 98% for 10 minutes. Orders are timing out.
+    P1 incident — SEV1. You are the on-call SRE.
+
+    You have access to: pg_stat_activity, pg_stat_statements, slow query logs, and Grafana.
+    The last deployment was 3 days ago (no recent schema changes).
+
+    Walk me through your triage steps, immediate mitigation actions, and how you would prevent this in future.
+
+expected_keywords:
+  - "pg_stat_activity"
+  - "long-running"
+  - "lock"
+  - "index"
+  - "kill"
+  - "rollback"
+  - "post-mortem"
+
+mentor_criteria:
+  - "First step is identifying blocking queries via pg_stat_activity (not restarting DB)"
+  - "Checks for lock contention before assuming query performance issue"
+  - "Considers terminating long-running idle transactions before killing active queries"
+  - "Proposes both immediate fix (query kill/index hint) and durable fix (index, query optimization)"
+  - "Mentions post-mortem and runbook update as follow-up actions"
+
+auto_score_weight: 0.5
+mentor_score_weight: 0.5
+threshold: 72

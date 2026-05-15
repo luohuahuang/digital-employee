@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 546" role="img" aria-labelledby="td-en-title">
+  <title id="td-en-title">Phase One Task Dependency Map</title>
+  <defs>
+    <linearGradient id="tde-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <filter id="tde-shadow" x="-4%" y="-4%" width="108%" height="114%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.06"/>
+    </filter>
+    <marker id="tde-arr" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect width="800" height="546" fill="url(#tde-bg)"/>
+  <text x="400" y="32" text-anchor="middle"
+        font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="15" font-weight="700" fill="#0f172a">Phase One Task Dependencies</text>
+
+  <!-- T0 -->
+  <rect x="160" y="48" width="440" height="58" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" filter="url(#tde-shadow)"/>
+  <line x1="165" y1="57" x2="165" y2="97" stroke="#f59e0b" stroke-width="5" stroke-linecap="round"/>
+  <rect x="176" y="60" width="30" height="19" rx="9" fill="#fef3c7"/>
+  <text x="191" y="73" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="10" font-weight="700" fill="#92400e">T0</text>
+  <text x="216" y="73" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="12" font-weight="700" fill="#0f172a">Starting point of all tasks — complete Week 1</text>
+  <text x="176" y="94" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" fill="#475569">Digital employee standard definition (concept, Schema, five characteristics)</text>
+
+  <!-- Branch T0 → T1 + T2 -->
+  <line x1="380" y1="106" x2="380" y2="124" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="218" y1="124" x2="587" y2="124" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="218" y1="124" x2="218" y2="132" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="587" y1="124" x2="587" y2="132" stroke="#94a3b8" stroke-width="1.5"/>
+
+  <!-- T1 -->
+  <rect x="30" y="132" width="376" height="122" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" filter="url(#tde-shadow)"/>
+  <line x1="35" y1="141" x2="35" y2="245" stroke="#3b82f6" stroke-width="5" stroke-linecap="round"/>
+  <rect x="46" y="144" width="30" height="19" rx="9" fill="#dbeafe"/>
+  <text x="61" y="157" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="10" font-weight="700" fill="#1d4ed8">T1</text>
+  <text x="86" y="157" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="12" font-weight="700" fill="#0f172a">Infrastructure</text>
+  <text x="46" y="180" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" fill="#475569">· Agent Runtime selection</text>
+  <text x="46" y="198" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" fill="#475569">· Account system integration</text>
+  <text x="46" y="216" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" fill="#475569">· Sandbox environment setup</text>
+  <text x="46" y="234" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" fill="#475569">· Knowledge base &amp; RAG flow</text>
+
+  <!-- T2 -->
+  <rect x="420" y="132" width="336" height="106" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" filter="url(#tde-shadow)"/>
+  <line x1="425" y1="141" x2="425" y2="229" stroke="#6366f1" stroke-width="5" stroke-linecap="round"/>
+  <rect x="436" y="144" width="30" height="19" rx="9" fill="#e0e7ff"/>
+  <text x="451" y="157" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="10" font-weight="700" fill="#3730a3">T2</text>
+  <text x="476" y="157" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="12" font-weight="700" fill="#0f172a">Security Standards v1.0</text>
+  <text x="436" y="180" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" fill="#475569">· Security standards development</text>
+  <text x="436" y="198" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" fill="#475569">· Permission system design</text>
+  <text x="436" y="216" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" fill="#475569">· Security inspector planning</text>
+
+  <text x="786" y="196" text-anchor="end"
+        font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="10" fill="#94a3b8">← Week 1–4</text>
+
+  <!-- Arrow T1 → T3 -->
+  <line x1="218" y1="254" x2="218" y2="270" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#tde-arr)"/>
+  <text x="226" y="265" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="9.5" fill="#94a3b8">Unlocks when T1 core is ready</text>
+
+  <!-- T3 -->
+  <rect x="30" y="272" width="376" height="70" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" filter="url(#tde-shadow)"/>
+  <line x1="35" y1="281" x2="35" y2="333" stroke="#10b981" stroke-width="5" stroke-linecap="round"/>
+  <rect x="46" y="284" width="30" height="19" rx="9" fill="#d1fae5"/>
+  <text x="61" y="297" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="10" font-weight="700" fill="#065f46">T3</text>
+  <text x="86" y="297" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="12" font-weight="700" fill="#0f172a">Genesis Digital Employee Design &amp; Training</text>
+  <text x="46" y="322" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" fill="#475569">· 6 roles in parallel, each team advances independently, demo at weekly meetings</text>
+  <text x="786" y="312" text-anchor="end"
+        font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="10" fill="#94a3b8">← Week 5–8</text>
+
+  <!-- Branch T3 → T4 + T5 -->
+  <line x1="218" y1="342" x2="218" y2="358" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="198" y1="358" x2="547" y2="358" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="198" y1="358" x2="198" y2="366" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="547" y1="358" x2="547" y2="366" stroke="#94a3b8" stroke-width="1.5"/>
+
+  <!-- T4 -->
+  <rect x="30" y="366" width="336" height="110" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" filter="url(#tde-shadow)"/>
+  <line x1="35" y1="375" x2="35" y2="467" stroke="#8b5cf6" stroke-width="5" stroke-linecap="round"/>
+  <rect x="46" y="378" width="30" height="19" rx="9" fill="#ede9fe"/>
+  <text x="61" y="391" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="10" font-weight="700" fill="#5b21b6">T4</text>
+  <text x="86" y="391" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="12" font-weight="700" fill="#0f172a">Digital Employee Management Platform</text>
+  <text x="46" y="416" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" fill="#475569">· Feature design (humans)</text>
+  <text x="46" y="434" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" fill="#475569">· Development (Genesis digital employee bootstrapping)</text>
+  <text x="46" y="452" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" fill="#475569">· Mentor monitoring throughout</text>
+  <text x="46" y="470" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="10" fill="#8b5cf6">← Week 6–10</text>
+
+  <!-- T5 -->
+  <rect x="380" y="366" width="336" height="100" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" filter="url(#tde-shadow)"/>
+  <line x1="385" y1="375" x2="385" y2="457" stroke="#f43f5e" stroke-width="5" stroke-linecap="round"/>
+  <rect x="396" y="378" width="30" height="19" rx="9" fill="#ffe4e6"/>
+  <text x="411" y="391" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="10" font-weight="700" fill="#9f1239">T5</text>
+  <text x="436" y="391" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="12" font-weight="700" fill="#0f172a">Sandbox Templates + Exam Platform</text>
+  <text x="396" y="416" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" fill="#475569">· Role-specific sandbox templates</text>
+  <text x="396" y="434" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" fill="#475569">· Universal + specialized exam cases</text>
+  <text x="396" y="452" font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="11" fill="#475569">· Automated scoring framework</text>
+  <text x="786" y="416" text-anchor="end"
+        font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="10" fill="#94a3b8">← Week 6–8</text>
+
+  <!-- Fan-in → Integration Acceptance -->
+  <line x1="198" y1="476" x2="198" y2="492" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="547" y1="466" x2="547" y2="492" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="198" y1="492" x2="547" y2="492" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="372" y1="492" x2="372" y2="500" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#tde-arr)"/>
+
+  <rect x="172" y="502" width="400" height="40" rx="8" fill="#1e293b" filter="url(#tde-shadow)"/>
+  <text x="372" y="527" text-anchor="middle"
+        font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="13" font-weight="700" fill="#f8fafc">Integration Acceptance</text>
+  <text x="786" y="525" text-anchor="end"
+        font-family="'Helvetica Neue', Arial, sans-serif"
+        font-size="10" fill="#94a3b8">← Week 11–12</text>
+</svg>

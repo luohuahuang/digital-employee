@@ -1,0 +1,77 @@
+# Promotion QA — Promo Code Stacking Edge Cases
+# Tests whether agent can identify the right test scenarios for
+# complex promo stacking rules, including contradictory interactions.
+id: "qa-promo-stacking-edge-001"
+skill: "test_case_design"
+scenario: "Test case design for promo code stacking rules"
+difficulty: "L2"
+origin: designed
+tags: [promotion, stacking, edge_case, test_case_design]
+
+input:
+  message: |
+    Please design test cases for our promo code stacking logic.
+
+    Business rules:
+    - A user can apply at most 2 promo codes per order
+    - "WELCOME10" (10% off) cannot be stacked with any other promo
+    - "SAVE20" ($20 off orders ≥ $100) can be stacked with free shipping codes
+    - Free shipping codes start with "SHIP"
+    - Discounts are applied in this order: percentage off → fixed amount off → free shipping
+    - Final order total cannot be negative (floor at $0)
+
+# ── Layer 1: Rules ─────────────────────────────────────────────────────────
+rules:
+  - type: contains_any
+    values: ["WELCOME10", "cannot stack", "cannot be stacked", "not stackable", "mutually exclusive"]
+    fail_message: "Did not test the WELCOME10 non-stackable rule"
+  - type: contains_any
+    values: ["negative", "$0", "floor", "minimum", "zero"]
+    fail_message: "Did not test the negative total floor"
+
+# ── Layer 2: LLM-judge criteria ────────────────────────────────────────────
+criteria:
+  - id: rule_coverage
+    description: "Are all 5 business rules tested?"
+    weight: 0.40
+    rubric:
+      3: "Tests cover all 5 rules: 2-code limit, WELCOME10 exclusivity, SAVE20+SHIP stacking, application order, $0 floor"
+      2: "Covers 3-4 rules; missing one or two"
+      1: "Covers only 1-2 rules (e.g., just happy path and WELCOME10)"
+      0: "No meaningful coverage of the business rules"
+
+  - id: conflict_detection
+    description: "Does the agent identify conflicting/ambiguous scenarios and flag them?"
+    weight: 0.35
+    rubric:
+      3: "Identifies at least 2 ambiguous scenarios (e.g., WELCOME10+SHIP — allowed or not? 3 codes applied at once) and asks for clarification or notes the gap"
+      2: "Identifies 1 ambiguity but misses obvious ones"
+      1: "Treats all rules as unambiguous; no gaps flagged"
+      0: "No gap analysis"
+
+  - id: boundary_precision
+    description: "Are boundary values for SAVE20 ($100 threshold) and floor ($0) tested precisely?"
+    weight: 0.25
+    rubric:
+      3: "Tests SAVE20 at exactly $99.99, $100.00, $100.01 and negative-total prevention at e.g. 100% promo on $5 item"
+      2: "Tests boundary but only with round numbers; misses the exact threshold"
+      1: "Mentions the $100 threshold but no specific boundary test cases"
+      0: "No boundary testing"
+
+# ── Backward-compatible fields ─────────────────────────────────────────────
+expected_keywords:
+  - "WELCOME10"
+  - "SAVE20"
+  - "SHIP"
+  - "negative"
+  - "stack"
+
+mentor_criteria:
+  - "All 5 business rules are covered with at least one test case each"
+  - "Conflicting/ambiguous scenarios are identified (WELCOME10+SHIP, 3-code attempt)"
+  - "Boundary values are precise: $99.99 vs $100.00 for SAVE20 threshold"
+  - "Application order is tested with multi-code combinations"
+
+auto_score_weight: 0.35
+mentor_score_weight: 0.65
+pass_threshold: 75

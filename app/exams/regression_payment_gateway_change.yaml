@@ -1,0 +1,97 @@
+# Regression Scope Assessment: Payment Gateway SDK Upgrade
+# Tests ability to identify regression risk areas for infrastructure changes
+id: "qa-regression-payment-gateway-change-001"
+role: "QA"
+skill: "regression_scope_assessment"
+scenario: "Identify regression scope for a payment gateway SDK upgrade"
+difficulty: "L2"
+origin: "designed"
+tags: [regression, payment, infrastructure, scope, risk]
+
+input:
+  message: |
+    We're upgrading our payment gateway SDK from v3.5 to v4.2. It's a major version bump with API changes.
+
+    **Change Details:**
+    - Response format for payment success changed from JSON to XML
+    - Error codes have been renumbered (e.g., error_code 202 → 1002)
+    - Webhook signature validation algorithm changed from HMAC-SHA1 to HMAC-SHA256
+    - Timeout handling changed: retries now automatic (we no longer need manual retry logic)
+    - New feature: idempotency key support in requests (optional)
+    - New feature: 3D Secure 2.0 support (optional)
+    - Deprecated: batch refund API (must refund items one-by-one now)
+
+    **Question:**
+    What parts of our system could be affected by this upgrade? What regression areas do we need to test? Be specific.
+
+rules:
+  - type: contains_any
+    values: ["payment", "refund", "webhook", "response", "error"]
+    fail_message: "Did not identify affected payment and refund flows"
+  - type: contains_any
+    values: ["webhook", "signature", "HMAC", "validation"]
+    fail_message: "Did not address webhook security changes"
+  - type: contains_any
+    values: ["retry", "timeout", "automatic", "manual"]
+    fail_message: "Did not address retry logic changes"
+
+criteria:
+  - id: scope_identification
+    description: "Are all affected system areas identified?"
+    weight: 0.40
+    rubric:
+      3: "Identifies 6+ areas: (1) payment request/response handling (format change), (2) error handling (code renumbering), (3) webhook processing (signature validation), (4) retry logic (auto vs manual), (5) refund flow (batch deprecated), (6) 3D Secure flows if used, (7) integration tests"
+      2: "Identifies 4-5 areas with reasonable detail"
+      1: "Identifies 2-3 areas"
+      0: "Fewer than 2 areas identified"
+
+  - id: specific_test_cases
+    description: "Are specific regression test cases proposed?"
+    weight: 0.35
+    rubric:
+      3: "Proposes: (1) Test payment success: verify response parsing handles XML format correctly, (2) Test error handling: verify error codes are mapped correctly (old 202 → new 1002), (3) Test webhook: verify new HMAC-SHA256 signature validates, (4) Test retry: verify automatic retry doesn't cause double-charges, (5) Test batch refund: verify single-item refund works, (6) Test 3D Secure if enabled"
+      2: "Proposes 4-5 specific test scenarios"
+      1: "Proposes 2-3 test scenarios"
+      0: "No specific tests proposed"
+
+  - id: risk_prioritization
+    description: "Are risks prioritized by severity?"
+    weight: 0.15
+    rubric:
+      3: "Prioritizes: 'Critical: webhook validation (broken signature = orders not processed), error handling (silent failures), payment response parsing (transaction status unknown). High: retry logic (ensure no double-charges), refund flow. Medium: 3D Secure (only if enabled)'"
+      2: "Prioritizes some risks; mostly identifies critical areas"
+      1: "Attempts prioritization but unclear"
+      0: "No prioritization"
+
+  - id: backward_compatibility
+    description: "Are backward compatibility concerns addressed?"
+    weight: 0.10
+    rubric:
+      3: "Notes: 'The response format change (JSON → XML) is breaking. Old code parsing JSON will fail. Need code changes before upgrade, not just tests. Old webhook format will be invalid.'"
+      2: "Mentions backward compatibility but with less depth"
+      1: "Touches on compatibility issues"
+      0: "No compatibility discussion"
+
+expected_keywords:
+  - "payment"
+  - "webhook"
+  - "signature"
+  - "error code"
+  - "response"
+  - "retry"
+  - "refund"
+  - "regression"
+
+mentor_criteria:
+  - "Identifies payment request/response handling is affected"
+  - "Identifies webhook signature validation changes (HMAC-SHA1 → SHA256)"
+  - "Identifies error code mapping changes"
+  - "Identifies retry logic is now automatic (no double-charges)"
+  - "Identifies refund flow changes (batch deprecated)"
+  - "Identifies response format change (JSON → XML) is breaking"
+  - "Proposes specific test scenarios for each area"
+  - "Prioritizes risks by severity"
+
+auto_score_weight: 0.40
+mentor_score_weight: 0.60
+pass_threshold: 75

@@ -1,0 +1,35 @@
+# Exam: Capacity planning — 11.11 sale traffic surge
+id: "sre-capacity-001"
+skill: "capacity_planning"
+scenario: "Plan infrastructure capacity for a 10x traffic surge during 11.11 sale"
+difficulty: "L2"
+role: "SRE"
+
+input:
+  message: |
+    The 11.11 sale starts in 2 weeks. Last year's peak was 50k RPS on the order service.
+    This year's marketing team projects 5–10x growth (250k–500k RPS).
+    Current infra: 20 app servers (8-core, 16GB RAM), 2 PostgreSQL primaries with read replicas,
+    Redis cluster (6 nodes), and an Nginx load balancer.
+
+    What capacity changes do you recommend, and how do you validate readiness before the event?
+
+expected_keywords:
+  - "load test"
+  - "auto-scaling"
+  - "read replica"
+  - "cache"
+  - "bottleneck"
+  - "runbook"
+  - "rollback"
+
+mentor_criteria:
+  - "Identifies database as likely bottleneck before app servers at 10x scale"
+  - "Recommends load testing at projected peak before the event (not just capacity addition)"
+  - "Addresses connection pooling (PgBouncer or equivalent) as database scaling lever"
+  - "Includes a rollback plan and circuit breaker strategy"
+  - "Mentions game-day runbook with escalation contacts and kill-switch procedures"
+
+auto_score_weight: 0.45
+mentor_score_weight: 0.55
+threshold: 70

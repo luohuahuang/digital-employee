@@ -1,0 +1,110 @@
+# Risk Identification: Flash Sale Feature Launch
+# Tests ability to identify operational and technical risks before go-live
+id: "qa-risk-flash-sale-launch-001"
+role: "QA"
+skill: "risk_identification"
+scenario: "Identify operational and technical risks for flash sale feature launch"
+difficulty: "L2"
+origin: "designed"
+tags: [risk, flash_sale, load, inventory, monitoring, launch]
+
+input:
+  message: |
+    We're launching a flash sale feature next week. Here's the design:
+
+    **Feature Overview:**
+    - Admin can create a flash sale: select 10-50 products, set discount (10-50% off), set duration (1-4 hours)
+    - Flash sale is announced via email (sent to all users) and in-app banner
+    - Expected traffic: 10x normal traffic during sale window
+    - Sale applies automatically in checkout (no code needed)
+    - Inventory is shared: limited stock, first-come-first-served
+
+    **Technical Details:**
+    - New service: FlashSale Service
+    - Cache: Promo rules cached in Redis (1 hour TTL)
+    - Data: Sale config stored in RDS (orders table 100M rows)
+    - Traffic estimate: 100 req/sec baseline → 1000 req/sec during sale
+
+    **Team Wants to Know:**
+    What could go wrong? What risks should we be aware of? What should we monitor? What operational readiness do we need?
+
+rules:
+  - type: contains_any
+    values: ["traffic", "spike", "load", "capacity", "scale", "1000"]
+    fail_message: "Did not address the 10x traffic spike risk"
+  - type: contains_any
+    values: ["inventory", "oversell", "stock", "concurrent", "race"]
+    fail_message: "Did not address inventory accuracy and overselling risk"
+  - type: contains_any
+    values: ["monitor", "alert", "metric", "observe", "dashboard"]
+    fail_message: "Did not propose monitoring and observability"
+
+criteria:
+  - id: traffic_risk
+    description: "Are traffic spike and capacity risks identified?"
+    weight: 0.30
+    rubric:
+      3: "Identifies: (1) 1000 req/sec is 10x baseline; app may not handle it, (2) Database connections may be exhausted, (3) Payment gateway may timeout under load, (4) Cache may become a bottleneck if cache miss on 1000 req/sec, (5) CDN for marketing assets may need scaling, (6) Recommends: load testing at 1200 req/sec, have rollback plan if traffic exceeds capacity"
+      2: "Identifies 3-4 traffic-related risks with reasonable detail"
+      1: "Identifies 1-2 risks"
+      0: "No traffic risks identified"
+
+  - id: inventory_risk
+    description: "Are inventory accuracy and race condition risks identified?"
+    weight: 0.25
+    rubric:
+      3: "Identifies: (1) High concurrency increases overselling risk (multiple customers claim same item), (2) Race condition if not using SELECT FOR UPDATE / pessimistic locking, (3) Inventory backfill during scale might miss new orders, (4) Flash sale products might have reserved inventory that's not honored, (5) Recommends: test concurrent orders on limited stock, verify inventory consistency post-sale"
+      2: "Identifies 3 inventory-related risks"
+      1: "Identifies 1-2 risks"
+      0: "No inventory risks identified"
+
+  - id: monitoring_readiness
+    description: "Are monitoring and alerting strategies proposed?"
+    weight: 0.25
+    rubric:
+      3: "Proposes dashboard with: (1) req/sec (alert if >1200), (2) p99 latency (alert if >1s), (3) payment success rate (alert if <99%), (4) inventory accuracy checks, (5) cache hit ratio, (6) error rates by endpoint, (7) database connection pool utilization. Also: on-call engineer during sale window."
+      2: "Proposes 5-6 monitoring metrics and alerting strategy"
+      1: "Proposes 3-4 metrics"
+      0: "No monitoring proposed"
+
+  - id: operational_prep
+    description: "Is operational readiness addressed?"
+    weight: 0.15
+    rubric:
+      3: "Recommends: (1) Capacity planning: ensure RDS has headroom, app instances can scale, (2) Runbooks for issues (inventory mismatch, payment failures, database saturation), (3) Team on-call during sale, (4) Rollback plan, (5) Communication: notify support team of incoming traffic, (6) Post-sale: verify data consistency, reconcile inventory"
+      2: "Recommends 4-5 operational readiness items"
+      1: "Recommends 2-3 items"
+      0: "No operational prep discussed"
+
+  - id: user_experience_risk
+    description: "Are customer experience risks identified?"
+    weight: 0.05
+    rubric:
+      3: "Notes: (1) Slow checkout or errors will frustrate customers, (2) Inventory runout messages may be unclear, (3) Cache lag might show wrong prices/inventory"
+      2: "Mentions 1-2 UX risks"
+      1: "Touches on UX briefly"
+      0: "No UX risk mentioned"
+
+expected_keywords:
+  - "traffic"
+  - "spike"
+  - "capacity"
+  - "inventory"
+  - "oversell"
+  - "monitor"
+  - "alert"
+  - "concurrent"
+
+mentor_criteria:
+  - "Identifies 10x traffic spike and capacity risks"
+  - "Identifies inventory overselling risk under high concurrency"
+  - "Identifies race condition and data consistency risks"
+  - "Proposes monitoring metrics: req/sec, latency, error rates, inventory accuracy"
+  - "Recommends load testing before launch"
+  - "Recommends on-call team during sale window"
+  - "Recommends rollback plan"
+  - "Addresses data reconciliation post-sale"
+
+auto_score_weight: 0.40
+mentor_score_weight: 0.60
+pass_threshold: 75

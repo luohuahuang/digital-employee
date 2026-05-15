@@ -1,0 +1,90 @@
+# Requirement Clarification: Notification Trigger Logic
+# Tests ability to identify incomplete requirements and ask clarifying questions
+id: "qa-clarify-notification-trigger-001"
+role: "QA"
+skill: "requirement_clarification"
+scenario: "Clarify ambiguous notification trigger requirements before test design"
+difficulty: "L2"
+origin: "designed"
+tags: [requirements, notifications, multi_channel, clarification, ambiguity]
+
+input:
+  message: |
+    We're building an order shipment notification feature. PM says:
+
+    **Requirement:**
+    "Notify user when order ships"
+
+    That's it. We need to test this next sprint. I've got some questions but not sure what's critical for testing vs nice-to-have. What do I need to clarify before writing test cases?
+
+rules:
+  - type: contains_any
+    values: ["channel", "SMS", "email", "push", "notification", "how", "which"]
+    fail_message: "Did not ask about notification channels or delivery mechanisms"
+  - type: contains_any
+    values: ["retry", "deliver", "failure", "fallback", "what if"]
+    fail_message: "Did not ask about delivery reliability or failure scenarios"
+  - type: contains_any
+    values: ["international", "timezone", "language", "region"]
+    fail_message: "Did not ask about localization or regional considerations"
+
+criteria:
+  - id: requirement_gaps
+    description: "Does the agent identify missing information?"
+    weight: 0.35
+    rubric:
+      3: "Identifies 4+ gaps: (1) Which channels? (2) What if customer has no phone or email? (3) What if notification delivery fails? (4) Internationalization? (5) When exactly during fulfillment? (6) Can customer opt out?"
+      2: "Identifies 3 gaps with reasonable detail"
+      1: "Identifies 1-2 gaps"
+      0: "Treats requirement as complete"
+
+  - id: clarification_questions
+    description: "Are specific, testable questions asked?"
+    weight: 0.40
+    rubric:
+      3: "Asks: '(1) Should notify via email, SMS, or both? (2) If no phone/email on file, what happens? (3) On delivery failure, do we retry? How many times? (4) Is notification sent in user's timezone or UTC? (5) Should notification be in user's preferred language? (6) When during fulfillment: immediately when carrier picks up, or when label is created? (7) Can users opt out?'"
+      2: "Asks 5-6 specific questions covering major areas"
+      1: "Asks 2-4 questions"
+      0: "No clarifying questions"
+
+  - id: test_design_impact
+    description: "Does the agent explain how answers affect test design?"
+    weight: 0.20
+    rubric:
+      3: "Explains: 'If we notify via both email + SMS, test cases must verify both channels. If SMS fails for users without phone, test that fallback email is sent. If timezone matters, test shipment at 11:59 PM vs 12:01 AM.'"
+      2: "Explains how 2-3 clarifications affect test design"
+      1: "Mentions impact but explanation is vague"
+      0: "No explanation of test impact"
+
+  - id: prioritization
+    description: "Does the agent distinguish between critical and optional questions?"
+    weight: 0.05
+    rubric:
+      3: "States: 'Critical: Which channels? What if delivery fails? When exactly? Optional: Timezone/language (can be Phase 2)'"
+      2: "Attempts to prioritize but somewhat unclear"
+      1: "Asks questions without prioritization"
+      0: "No prioritization"
+
+expected_keywords:
+  - "channel"
+  - "SMS"
+  - "email"
+  - "clarify"
+  - "ask"
+  - "retry"
+  - "failure"
+  - "international"
+  - "opt out"
+
+mentor_criteria:
+  - "Identifies that 'notify user' lacks channel specification (email, SMS, push, etc.)"
+  - "Asks what happens if customer has no phone or email on file"
+  - "Asks about delivery failure and retry logic"
+  - "Asks about timezone and localization"
+  - "Asks when exactly during fulfillment the notification is sent"
+  - "Asks about customer opt-out preferences"
+  - "Explains why clarification matters for test design"
+
+auto_score_weight: 0.45
+mentor_score_weight: 0.55
+pass_threshold: 75

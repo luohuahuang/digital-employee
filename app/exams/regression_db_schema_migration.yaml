@@ -1,0 +1,112 @@
+# Regression Scope Assessment: Non-Null Column Database Migration
+# Tests ability to assess risks in data migration and schema changes
+id: "qa-regression-db-schema-migration-001"
+role: "QA"
+skill: "regression_scope_assessment"
+scenario: "Identify regression and risk assessment for adding non-null column to orders table"
+difficulty: "L3"
+origin: "designed"
+tags: [regression, database, migration, schema, risk, zero_downtime]
+
+input:
+  message: |
+    We're adding a new required field to the orders table. Here's the plan:
+
+    **Current State:**
+    - orders table has: id, user_id, total, status, created_at, updated_at
+    - ~100 million existing orders in production
+    - Table is actively used by checkout (reads/writes ~1000 req/sec peak)
+
+    **Migration Plan:**
+    - Add new column: fulfillment_warehouse_id (NOT NULL)
+    - Backfill existing orders with a default warehouse_id (warehouse 1)
+    - Update all queries to use the new column
+
+    **Technical Details:**
+    - Current DB: PostgreSQL 12, single leader, no replica lag tolerance
+    - Peak traffic: 1000 req/sec (orders service)
+    - Migration window: 2am UTC on Sunday (10 hour window before Monday morning traffic)
+    - Deployment strategy: rolling deploy, 5 app instances, 2 instances at a time
+
+    **Question:**
+    What are the regression and operational risks? What should we test? What could go wrong?
+
+rules:
+  - type: contains_any
+    values: ["downtime", "blocking", "lock", "constraint", "backfill", "NULL"]
+    fail_message: "Did not address schema constraints and data backfill risks"
+  - type: contains_any
+    values: ["rollback", "recovery", "backup", "restore", "revert"]
+    fail_message: "Did not address rollback or failure recovery strategy"
+  - type: contains_any
+    values: ["zero-downtime", "zero downtime", "online", "concurrent", "safe"]
+    fail_message: "Did not assess whether the migration is truly zero-downtime"
+
+criteria:
+  - id: risk_identification
+    description: "Are key migration risks identified?"
+    weight: 0.40
+    rubric:
+      3: "Identifies 5+ risks: (1) Table lock during ADD COLUMN (blocking writes), (2) Backfill on 100M rows takes hours (long lock), (3) NOT NULL constraint applied before backfill complete (data validation fails), (4) Queries expecting NULL values will break, (5) Old code without the column deployed mid-migration (constraint violation), (6) Rollback strategy unclear (restore from backup?)"
+      2: "Identifies 3-4 risks with reasonable detail"
+      1: "Identifies 1-2 risks"
+      0: "No significant risks identified"
+
+  - id: zero_downtime_viability
+    description: "Does the agent assess whether zero-downtime is achievable?"
+    weight: 0.25
+    rubric:
+      3: "States: 'The plan is NOT zero-downtime. Adding NOT NULL constraint before backfill will lock the table for millions of rows. Options: (1) Add column as nullable first, backfill, then add constraint, (2) Use online migration tool (e.g., pt-online-schema-change), (3) Shard the table and migrate shards sequentially, (4) Accept brief downtime window.'"
+      2: "Identifies that zero-downtime is risky; suggests approaches"
+      1: "Mentions concern about downtime but limited depth"
+      0: "Assumes plan is safe"
+
+  - id: testing_strategy
+    description: "Are specific regression test scenarios proposed?"
+    weight: 0.20
+    rubric:
+      3: "Proposes: (1) Create test DB with 100M rows, run migration, measure lock time, (2) Test old code (without column) during migration (error scenario), (3) Test queries filtering/sorting by warehouse_id, (4) Test checkout flow with new column present, (5) Test rollback: restore DB to pre-migration state, verify consistency, (6) Load test: 1000 req/sec during and after migration"
+      2: "Proposes 4-5 test scenarios"
+      1: "Proposes 2-3 test scenarios"
+      0: "No testing strategy"
+
+  - id: rollback_plan
+    description: "Is a rollback strategy defined?"
+    weight: 0.10
+    rubric:
+      3: "Details: 'If migration fails, restore DB from Sunday backup (pre-migration snapshot), redeploy old code, verify checkout works, monitor for data loss (orders between backup and failure).'"
+      2: "Suggests rollback approach with some detail"
+      1: "Mentions rollback is needed but no strategy"
+      0: "No rollback discussion"
+
+  - id: deployment_coordination
+    description: "Is code deployment coordinated with schema changes?"
+    weight: 0.05
+    rubric:
+      3: "Ensures: '(1) Deploy code that accepts but doesn't require the column first (backward compatible), (2) Run migration, (3) Deploy code that requires the column.' This prevents constraint violations during rolling deploy."
+      2: "Mentions deployment coordination"
+      1: "Touches on deployment coordination"
+      0: "No coordination discussed"
+
+expected_keywords:
+  - "lock"
+  - "downtime"
+  - "backfill"
+  - "NULL"
+  - "constraint"
+  - "rollback"
+  - "migration"
+  - "concurrent"
+
+mentor_criteria:
+  - "Identifies that NOT NULL constraint blocks writes during backfill"
+  - "Assesses whether the plan is truly zero-downtime (likely not)"
+  - "Identifies risks: table lock, backfill time, query breakage"
+  - "Proposes safer migration approach (nullable first, then constraint)"
+  - "Suggests load testing and rollback verification"
+  - "Coordinates code deployment with schema changes"
+  - "Identifies data loss risk if rollback needed"
+
+auto_score_weight: 0.35
+mentor_score_weight: 0.65
+pass_threshold: 75

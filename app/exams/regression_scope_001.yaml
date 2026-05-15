@@ -1,0 +1,78 @@
+# Regression Scope Identification
+# Tests whether agent can reason about blast radius and identify the right
+# regression test scope after a bug fix — not too narrow, not too broad.
+id: "qa-regression-scope-001"
+skill: "regression_analysis"
+scenario: "Identify regression test scope after a payment service bug fix"
+difficulty: "L2"
+origin: designed
+tags: [regression, scope, risk, impact_analysis]
+
+input:
+  message: |
+    Our engineers just fixed a bug in the payment service:
+
+    Bug: When a promo code is applied, the order total calculation was
+    incorrect — it was applying the discount twice.
+
+    Fix: Updated the discount calculation logic in OrderPricingService.calculateTotal().
+    The fix touches: OrderPricingService, PromoCodeValidator, and the order summary
+    rendering in the frontend checkout component.
+
+    What regression tests should we run before releasing this fix?
+    Please think about the blast radius.
+
+# ── Layer 1: Rules ─────────────────────────────────────────────────────────
+rules:
+  - type: contains_any
+    values: ["promo", "promotion", "discount", "coupon"]
+    fail_message: "Did not cover promo code scenarios in regression scope"
+  - type: contains_any
+    values: ["order total", "price", "pricing", "calculation", "amount"]
+    fail_message: "Did not cover pricing calculation in regression scope"
+
+# ── Layer 2: LLM-judge criteria ────────────────────────────────────────────
+criteria:
+  - id: blast_radius_reasoning
+    description: "Does the agent correctly reason about what could be affected?"
+    weight: 0.40
+    rubric:
+      3: "Identifies direct impact (promo+checkout), second-order impact (refunds, order history, invoices), and third-order (reporting/analytics that uses order totals)"
+      2: "Identifies direct and some second-order impacts but misses downstream consumers"
+      1: "Only identifies the directly touched files/components"
+      0: "Does not analyze blast radius at all"
+
+  - id: scope_prioritization
+    description: "Does the agent prioritize what to test first vs. what can wait?"
+    weight: 0.30
+    rubric:
+      3: "Clearly separates must-run-before-release tests from nice-to-have, with rationale"
+      2: "Lists tests but does not distinguish priority levels"
+      1: "Recommends running everything — no prioritization judgment"
+      0: "No prioritization or scope judgment"
+
+  - id: regression_specificity
+    description: "Are the recommended tests specific enough to actually execute?"
+    weight: 0.30
+    rubric:
+      3: "Each test area has a specific scenario: e.g., 'Apply promo code for exactly 100% discount and verify total = 0'"
+      2: "Some tests are specific, others are vague category names"
+      1: "Only category names, no scenarios (e.g., 'test checkout' without detail)"
+      0: "Output is too vague to act on"
+
+# ── Backward-compatible fields ─────────────────────────────────────────────
+expected_keywords:
+  - "promo"
+  - "discount"
+  - "refund"
+  - "order total"
+
+mentor_criteria:
+  - "Identifies blast radius beyond the directly touched components"
+  - "Distinguishes must-test-now from nice-to-have regression tests"
+  - "Regression scenarios are specific enough to actually execute"
+  - "Considers edge cases: 100% discount, stacked promos, expired promos"
+
+auto_score_weight: 0.4
+mentor_score_weight: 0.6
+pass_threshold: 75

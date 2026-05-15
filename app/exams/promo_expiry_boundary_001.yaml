@@ -1,0 +1,74 @@
+# Promotion QA — Promo Expiry Time Boundary
+# Tests whether agent correctly identifies the time-boundary edge cases
+# for promo expiry and raises the right questions about timezone handling.
+id: "qa-promo-expiry-boundary-001"
+skill: "test_case_design"
+scenario: "Promo code expiry time boundary — timezone and clock edge cases"
+difficulty: "L2"
+origin: production_failure
+tags: [promotion, expiry, boundary, timezone, time_sensitivity]
+
+input:
+  message: |
+    We had a production incident: customers complained that their promo code
+    "SUMMER25" (valid until June 30) was rejected on June 30 when they tried
+    to use it. Some customers in different time zones could still use it.
+
+    Please help me design test cases to prevent this type of incident from
+    recurring. The promo expires at "end of June 30" — but we're not sure
+    if that means server time (UTC+8), user's local time, or UTC.
+
+# ── Layer 1: Rules ─────────────────────────────────────────────────────────
+rules:
+  - type: contains_any
+    values: ["timezone", "UTC", "time zone", "local time", "server time"]
+    fail_message: "Did not address timezone ambiguity"
+  - type: contains_any
+    values: ["23:59", "midnight", "00:00", "end of day", "boundary"]
+    fail_message: "Did not test the exact expiry time boundary"
+
+# ── Layer 2: LLM-judge criteria ────────────────────────────────────────────
+criteria:
+  - id: root_cause_identification
+    description: "Does the agent correctly identify the root cause as timezone ambiguity?"
+    weight: 0.35
+    rubric:
+      3: "Explicitly identifies timezone definition as the root cause; asks which timezone 'end of day' means before designing tests"
+      2: "Mentions timezone but designs tests without resolving the ambiguity"
+      1: "Tests time boundary without mentioning timezone at all"
+      0: "Does not connect the incident to time/timezone issues"
+
+  - id: boundary_test_precision
+    description: "Are time boundary test cases at the exact second level?"
+    weight: 0.35
+    rubric:
+      3: "Tests include: 23:59:59 (should succeed), 00:00:00 on July 1 (should fail), and tests for each relevant timezone (user local, server, UTC)"
+      2: "Tests include minute-level boundary but not second-level; timezone partially covered"
+      1: "Only tests a date boundary (June 30 vs July 1), no time precision"
+      0: "No time boundary testing"
+
+  - id: clarification_before_design
+    description: "Does the agent ask the right clarifying question before committing to a test design?"
+    weight: 0.30
+    rubric:
+      3: "Asks explicitly: which timezone defines 'end of day'? Then proposes tests for each possible interpretation"
+      2: "Designs tests that assume one timezone but notes the assumption"
+      1: "Designs tests without acknowledging the ambiguity at all"
+      0: "Does not ask any clarifying question"
+
+# ── Backward-compatible fields ─────────────────────────────────────────────
+expected_keywords:
+  - "timezone"
+  - "UTC"
+  - "23:59"
+  - "boundary"
+
+mentor_criteria:
+  - "Correctly identifies timezone definition as the core ambiguity"
+  - "Tests include second-level precision at expiry boundary (23:59:59, 00:00:00)"
+  - "Asks which timezone governs expiry before committing to test design"
+  - "Proposes tests across multiple timezone scenarios"
+
+auto_score_weight: 0.30
+mentor_score_weight: 0.70
+pass_threshold: 75

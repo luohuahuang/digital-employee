@@ -1,0 +1,4 @@
+.venv/
+digital-qa-employee/web/frontend/node_modules/
+app/web/frontend/node_modules/
+app/web/frontend/dist/

@@ -1,0 +1,104 @@
+# Security Testing: Authentication and Authorization Bypass
+# Tests ability to design authentication and authorization security test cases
+id: "qa-security-auth-bypass-001"
+role: "QA"
+skill: "security_testing"
+scenario: "Design comprehensive authentication and authorization security tests"
+difficulty: "L2"
+origin: "designed"
+tags: [security, authentication, authorization, JWT, session, access_control]
+
+input:
+  message: |
+    We need to test for authentication and authorization vulnerabilities before public launch. Here's our auth system:
+
+    **Authentication:**
+    - Users login with email + password
+    - Server returns JWT token (valid for 1 hour)
+    - Client stores token in localStorage
+    - Each API call includes Authorization header: "Bearer {jwt}"
+
+    **Authorization:**
+    - User can view their own orders: GET /api/orders/{user_id}
+    - Admin can view all orders: GET /api/orders
+    - Order detail includes: order_id, user_id, items, total, payment_method, address
+    - Users are identified by user_id in JWT claims
+
+    **Current API:**
+    - /api/orders/{user_id} returns 200 with order details
+    - /api/orders returns 200 with all orders (admin only, but is it checked?)
+
+    **Questions:**
+    What authentication and authorization attacks should we test? How would we verify the system is secure?
+
+rules:
+  - type: contains_any
+    values: ["JWT", "token", "bearer", "manipulation", "forge", "claim"]
+    fail_message: "Did not address JWT manipulation and token forgery attacks"
+  - type: contains_any
+    values: ["horizontal", "vertical", "access control", "privilege escalation", "escalate"]
+    fail_message: "Did not address privilege escalation and access control bypass"
+  - type: contains_any
+    values: ["session", "fixation", "hijack", "steal", "replay"]
+    fail_message: "Did not address session-based attacks"
+
+criteria:
+  - id: authentication_attacks
+    description: "Are authentication bypass attacks identified?"
+    weight: 0.35
+    rubric:
+      3: "Identifies 4+ attacks: (1) JWT manipulation: change user_id in token, re-sign with public key or no signature, (2) JWT expiration bypass: extend exp claim, (3) JWT algorithm confusion: change from HS256 to RS256, (4) Token replay: capture old token, use after 1 hour (test if no refresh), (5) Credential stuffing: test with common passwords, (6) Missing auth: access /api/orders without Bearer token"
+      2: "Identifies 3 authentication attacks with reasonable detail"
+      1: "Identifies 1-2 attacks"
+      0: "No authentication attacks identified"
+
+  - id: authorization_attacks
+    description: "Are authorization bypass attacks identified?"
+    weight: 0.35
+    rubric:
+      3: "Identifies 5+ attacks: (1) Horizontal: user A requests GET /api/orders/B (another user), (2) Vertical escalation: regular user requests GET /api/orders (admin only), (3) Parameter tampering: user_id=1 changed to user_id=999, (4) Direct object reference: guess order_id from URL pattern, (5) Missing checks: /api/orders might return all orders without role verification, (6) Privilege injection: add 'admin=true' to JWT"
+      2: "Identifies 4 authorization attacks"
+      1: "Identifies 2-3 attacks"
+      0: "No authorization attacks identified"
+
+  - id: test_scenarios
+    description: "Are specific test scenarios proposed?"
+    weight: 0.20
+    rubric:
+      3: "Proposes: (1) Login as user A, capture JWT, modify user_id claim, re-sign with hardcoded secret, request orders for user B, (2) Try GET /api/orders without token, (3) Try GET /api/orders with user token (expect 403 forbidden), (4) Try GET /api/orders/{admin_user_id} as regular user, (5) Capture valid JWT, wait 61 minutes, try to use (should fail), (6) Try with null/empty Authorization header"
+      2: "Proposes 5-6 test scenarios"
+      1: "Proposes 3-4 scenarios"
+      0: "Proposes fewer than 3"
+
+  - id: verification
+    description: "Is verification clear for each attack?"
+    weight: 0.10
+    rubric:
+      3: "Specifies: 'If horizontal bypass exists: GET /api/orders/999 returns another user's orders (vulnerable). Should return 403 Forbidden. If vertical bypass: regular user's GET /api/orders returns all orders (vulnerable). Should return 403.'"
+      2: "Defines verification for most scenarios"
+      1: "Mentions verification vaguely"
+      0: "No verification approach"
+
+expected_keywords:
+  - "JWT"
+  - "token"
+  - "authorization"
+  - "horizontal"
+  - "vertical"
+  - "access control"
+  - "privilege"
+  - "bypass"
+
+mentor_criteria:
+  - "Tests JWT manipulation and token forgery scenarios"
+  - "Tests horizontal privilege escalation (access other users' data)"
+  - "Tests vertical privilege escalation (regular user acts as admin)"
+  - "Tests session/token expiration bypass"
+  - "Tests missing authorization checks"
+  - "Tests authentication header manipulation (empty, null, malformed)"
+  - "Proposes specific attack payloads and verification steps"
+  - "Addresses both positive (should block) and negative (should allow) cases"
+
+auto_score_weight: 0.45
+mentor_score_weight: 0.55
+pass_threshold: 75

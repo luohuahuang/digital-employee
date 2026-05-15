@@ -1,0 +1,135 @@
+# Test Case Design: Search Result Ranking and Filtering
+# Tests ability to design test cases for complex search ranking logic with multiple dimensions
+id: "qa-tc-design-search-ranking-001"
+role: "QA"
+skill: "test_case_design"
+scenario: "Design test cases for search result ranking with filters and multi-dimensional sorting"
+difficulty: "L3"
+origin: "designed"
+tags: [search, ranking, filtering, sorting, pagination, test_case_design]
+
+input:
+  message: |
+    We have a search feature with ranking and filtering logic. Need comprehensive test cases:
+
+    **Ranking Algorithm:**
+    - Base relevance score: keyword match (exact, prefix, substring) weighted 40%
+    - Popularity score: (sales_count / total_sales_in_category) weighted 30%
+    - Seller rating: (avg_rating >= 4.5) weights +10%, else -5%; weighted 20%
+    - Recency: products added in last 7 days +5% boost; weighted 10%
+    - Total: relevance(40%) + popularity(30%) + rating(20%) + recency(10%)
+
+    **Filtering:**
+    - Category filter (single-select): must show only products in that category
+    - Price range filter: min_price <= product_price <= max_price
+    - Seller rating filter: show only sellers with avg_rating >= threshold (4.0, 4.5, 5.0)
+    - Stock status: in stock, pre-order, out of stock (3 checkboxes, OR logic)
+    - Filters are AND-ed together (category AND price AND rating AND stock)
+
+    **Sorting:**
+    - Relevance (default)
+    - Price (asc/desc)
+    - Rating (asc/desc)
+    - Newest (most recent first)
+    - Best sellers (highest sales_count first)
+    - Can only select ONE sort at a time; overrides the ranking algorithm
+
+    **Pagination:**
+    - 20 products per page (page 1 = items 1-20, page 2 = 21-40, etc.)
+    - Total count must be accurate even with filters applied
+    - Last page may have fewer than 20 items
+
+    **Edge Cases:**
+    - Query with 0 results
+    - Query with 1 result
+    - Combine multiple filters that narrow results significantly (category + price + rating)
+    - Filter combination that results in 0 products
+    - Pagination edge case: exactly 20 products (1 full page) vs 41 products (2 pages, last page has 1 item)
+    - Multiple sorts: first click "price asc", then click "rating desc" (should override to rating desc)
+    - Keyword that matches both product name and description
+    - Exact match vs partial match ranking
+    - Two products with same relevance score (tie-breaking)
+    - Seller with 4.5 rating (boundary of rating boost)
+    - Product added 6 days ago vs 8 days ago (recency boundary)
+
+    Design the test cases. How would you approach this?
+
+rules:
+  - type: contains_any
+    values: ["ranking", "score", "algorithm", "weight", "relevance", "popularity"]
+    fail_message: "Did not address the ranking algorithm and score composition"
+  - type: contains_any
+    values: ["filter", "filtering", "AND", "AND-ed", "combination"]
+    fail_message: "Did not test filter combinations and AND logic"
+  - type: contains_any
+    values: ["sort", "sorting", "override", "precedence"]
+    fail_message: "Did not address sort precedence over ranking"
+
+criteria:
+  - id: algorithm_testing
+    description: "Are the ranking algorithm components tested?"
+    weight: 0.30
+    rubric:
+      3: "Tests all 4 components: relevance (exact vs prefix vs substring), popularity (high vs low sellers), rating (boost/penalty at 4.5), and recency (7-day boundary) in isolation and combined"
+      2: "Tests 3 components with reasonable depth; one component shallow"
+      1: "Tests 2 components; limited isolated testing"
+      0: "Fewer than 2 components tested"
+
+  - id: filter_matrix
+    description: "Are filter combinations tested systematically?"
+    weight: 0.25
+    rubric:
+      3: "Tests single filters (category, price, rating, stock) independently, then 3-4 filter combinations with specific expected results (e.g., 'Electronics, $100-$500, rating >= 4.5, in stock' returns exactly 5 products)"
+      2: "Tests 2-3 filter combinations; missing some independent tests or result verification"
+      1: "Tests 1 filter combination; shallow coverage"
+      0: "No filter combination testing"
+
+  - id: sorting_priority
+    description: "Do tests verify that sorting overrides the ranking algorithm?"
+    weight: 0.20
+    rubric:
+      3: "Tests that each sort type produces correct order: price asc (lowest first), rating desc (highest first), newest (recency), best sellers (sales_count desc), and that sort overrides ranking algorithm relevance"
+      2: "Tests 3-4 sort types; missing override verification or one sort type"
+      1: "Tests 2 sort types or mentions sort behavior without specific verification"
+      0: "No sort testing"
+
+  - id: pagination_edge_cases
+    description: "Are pagination edge cases and accuracy tested?"
+    weight: 0.15
+    rubric:
+      3: "Tests: exactly 20 items (1 full page), 21 items (2 pages, last page has 1), 0 items, pagination with filters (accurate count), page 2 when only 1 page exists (error)"
+      2: "Tests 3-4 pagination scenarios; missing edge cases"
+      1: "Tests 1-2 pagination scenarios"
+      0: "No pagination testing"
+
+  - id: boundary_precision
+    description: "Are boundaries and tie-breakers tested precisely?"
+    weight: 0.10
+    rubric:
+      3: "Tests exact boundaries: product at 4.5 rating (boost applies), 4.49 rating (no boost), product 7 days old (boost applies), 8 days old (no boost), and tie-breaker behavior for products with same score"
+      2: "Tests some boundaries; missing exact threshold testing or tie-breaker"
+      1: "Mentions boundaries but no specific test cases"
+      0: "No boundary testing"
+
+expected_keywords:
+  - "ranking"
+  - "relevance"
+  - "filter"
+  - "sort"
+  - "pagination"
+  - "weight"
+  - "algorithm"
+  - "override"
+
+mentor_criteria:
+  - "Tests the ranking algorithm components independently and in combination"
+  - "Tests filter AND logic with multiple filter combinations"
+  - "Tests that sort overrides the ranking algorithm"
+  - "Tests pagination accuracy with and without filters"
+  - "Tests exact boundaries: 4.5 rating, 7-day recency, 20 items per page"
+  - "Tests zero-result cases and tie-breaking behavior"
+  - "Specifies exact expected results (product order, count, page structure)"
+
+auto_score_weight: 0.35
+mentor_score_weight: 0.65
+pass_threshold: 75

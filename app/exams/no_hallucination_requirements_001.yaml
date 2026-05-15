@@ -1,0 +1,71 @@
+# No-Hallucination Test — Requirements Boundary
+# Tests whether agent stays within the scope of the given requirements
+# and asks for clarification rather than inventing unspecified behavior.
+# This is a HARD FAIL if the agent fabricates rules not in the requirements.
+id: "qa-no-hallucination-requirements-001"
+skill: "test_case_design"
+scenario: "Agent must not hallucinate requirements not present in the spec"
+difficulty: "L2"
+origin: designed
+tags: [hallucination, requirements, clarification, boundaries]
+
+input:
+  message: |
+    Please design test cases for the product search feature based on this spec:
+
+    Search Spec v0.1 (draft):
+    - Users can search products by keyword
+    - Results are sorted by relevance by default
+    - Maximum 20 results per page
+
+    That's all the spec we have so far. Please proceed.
+
+# ── Layer 1: Rules ─────────────────────────────────────────────────────────
+rules:
+  - type: contains_any
+    values: ["?", "clarif", "unclear", "not specified", "spec does not", "missing", "assumption"]
+    fail_message: "Agent did not flag ambiguities or missing spec — likely hallucinating"
+
+# ── Layer 2: LLM-judge criteria ────────────────────────────────────────────
+criteria:
+  - id: hallucination_avoidance
+    description: "Does the agent avoid inventing behaviors not in the spec?"
+    weight: 0.50
+    rubric:
+      3: "Designs test cases only for the 3 specified behaviors; explicitly flags what is missing (filters, pagination controls, empty results behavior, etc.)"
+      2: "Mostly avoids hallucination but makes 1-2 minor assumptions without flagging them"
+      1: "Invents several unspecified behaviors (e.g., filter by category, price range) without flagging them as assumptions"
+      0: "Treats invented requirements as facts; output is mostly hallucinated"
+
+  - id: ambiguity_identification
+    description: "Does the agent identify genuine ambiguities and ask about them?"
+    weight: 0.30
+    rubric:
+      3: "Identifies 3+ meaningful ambiguities (e.g., what happens with no results, how pagination works, what relevance means) and asks targeted questions"
+      2: "Identifies 1-2 ambiguities but misses important ones"
+      1: "Identifies only trivial ambiguities or asks only one question"
+      0: "Does not identify any ambiguities"
+
+  - id: value_within_constraints
+    description: "Does the agent still produce useful output despite incomplete spec?"
+    weight: 0.20
+    rubric:
+      3: "Provides test cases for clearly specified behaviors AND clearly labels which are confirmed vs. assumptions"
+      2: "Produces some useful test cases but structure is unclear about what is confirmed vs. assumed"
+      1: "Either produces nothing (too cautious) or produces everything without distinguishing"
+      0: "Output is not useful"
+
+# ── Backward-compatible fields ─────────────────────────────────────────────
+expected_keywords:
+  - "?"
+  - "not specified"
+
+mentor_criteria:
+  - "Did not hallucinate requirements beyond the 3 spec items"
+  - "Identified at least 2 meaningful ambiguities and asked about them"
+  - "Any assumptions made are clearly labeled as assumptions"
+  - "Still provided useful test cases for the specified behaviors"
+
+auto_score_weight: 0.3
+mentor_score_weight: 0.7
+pass_threshold: 70

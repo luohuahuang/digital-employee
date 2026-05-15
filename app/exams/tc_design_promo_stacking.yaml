@@ -1,0 +1,99 @@
+# Test Case Design: Promotion Stacking Rules
+# Tests ability to design comprehensive test cases for complex promotion stacking logic
+id: "qa-tc-design-promo-stacking-001"
+role: "QA"
+skill: "test_case_design"
+scenario: "Design test cases for promotion code stacking with multiple discount types"
+difficulty: "L2"
+origin: "designed"
+tags: [promotion, stacking, discount, test_case_design, edge_case]
+
+input:
+  message: |
+    Hey, we need comprehensive test cases for our promo stacking feature. Here's the spec:
+
+    **Stacking Rules:**
+    - Platform coupon (e.g., PLATFORM15 = 15% off) can stack with ONE merchant coupon (e.g., MERCHANT10 = $10 off)
+    - Platform coupons CANNOT stack with each other
+    - Flash sale discounts (auto-applied at checkout) can stack with both platform + merchant coupons
+    - Free shipping codes (SHIP prefix) can stack with any other discount
+    - If multiple coupons violate the rule, apply the first one entered and reject the second
+    - Maximum total discount cannot exceed 70% of cart subtotal
+    - Final order total cannot go negative (minimum $0)
+
+    **Discount Application Order:**
+    1. Percentage off (applied to subtotal)
+    2. Fixed amount off (applied to result of step 1)
+    3. Flash sale adjustments
+    4. Free shipping (applied last)
+
+    Test both combinations where discounts stack correctly AND where they should fail. What test cases would you write?
+
+rules:
+  - type: contains_any
+    values: ["platform coupon", "merchant coupon", "cannot stack", "mutually exclusive", "reject"]
+    fail_message: "Did not identify the core mutual-exclusivity rule for platform coupons"
+  - type: contains_any
+    values: ["70%", "maximum", "cap", "floor", "zero", "$0", "negative"]
+    fail_message: "Did not test the 70% discount cap and zero-floor boundary"
+  - type: contains_any
+    values: ["application order", "order of application", "percentage", "fixed amount", "free shipping"]
+    fail_message: "Did not address the specific application order for discounts"
+
+criteria:
+  - id: rule_coverage
+    description: "How many of the 6 core rules are tested?"
+    weight: 0.35
+    rubric:
+      3: "All 6 rules covered: platform exclusivity, merchant stacking, flash sale interaction, free shipping, 70% cap, zero floor, AND application order"
+      2: "5 rules covered; minor gap in one area (e.g., missed 70% cap or zero-floor boundary)"
+      1: "3-4 rules covered; significant gaps (e.g., didn't test free shipping or application order)"
+      0: "Fewer than 3 rules tested or no meaningful test structure"
+
+  - id: stacking_combinations
+    description: "Are realistic stacking combinations tested?"
+    weight: 0.30
+    rubric:
+      3: "Tests 4+ valid combinations (platform+merchant, platform+flash+free shipping, etc.) AND 3+ invalid combinations (platform+platform, merchant+merchant, over-70%) with clear pass/fail expectations"
+      2: "Tests 2-3 valid combinations and 1-2 invalid combinations; scenarios are reasonable but incomplete"
+      1: "Tests mostly single coupons or only one stacking scenario; limited combination breadth"
+      0: "No stacking combinations tested or purely hypothetical"
+
+  - id: boundary_precision
+    description: "Are 70% cap and zero-floor boundaries tested precisely?"
+    weight: 0.20
+    rubric:
+      3: "Tests exactly at 70% threshold (69%, 70%, 71%) and negative-result scenarios (e.g., $100 cart with $150 total discount); shows expected behavior at each boundary"
+      2: "Tests the boundaries but with round numbers; missing one boundary condition"
+      1: "Mentions the 70% and zero-floor rules but no specific test cases"
+      0: "No boundary testing"
+
+  - id: ambiguity_handling
+    description: "Are ambiguities and edge cases flagged?"
+    weight: 0.15
+    rubric:
+      3: "Identifies at least 2 clarifications needed: order priority if user tries to apply 2 platform coupons simultaneously, cascading discount on already-discounted items, behavior when discount + flash sale exceeds 70%"
+      2: "Flags 1 ambiguity but misses others"
+      1: "No gaps flagged; assumes all rules are unambiguous"
+      0: "No analysis of ambiguities"
+
+expected_keywords:
+  - "stacking"
+  - "platform"
+  - "merchant"
+  - "70%"
+  - "application order"
+  - "free shipping"
+  - "negative"
+
+mentor_criteria:
+  - "Identifies the mutual-exclusivity rule for platform coupons vs other platform coupons"
+  - "Tests both valid stacking scenarios (allowed) and invalid ones (rejected)"
+  - "Defines expected results for each test case (not vague 'checkout works')"
+  - "Addresses the 4-step application order with at least one multi-step test case"
+  - "Tests 70% cap and zero-floor boundaries with specific values"
+  - "Identifies and flags at least one ambiguous scenario for clarification"
+
+auto_score_weight: 0.40
+mentor_score_weight: 0.60
+pass_threshold: 75

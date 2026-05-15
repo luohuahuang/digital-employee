@@ -1,0 +1,115 @@
+# Regression Scope Assessment: Promotion Engine Refactoring
+# Tests ability to identify comprehensive regression scope for a refactored subsystem
+id: "qa-regression-promo-engine-refactor-001"
+role: "QA"
+skill: "regression_scope_assessment"
+scenario: "Identify all regression testing areas when refactoring the promotion engine"
+difficulty: "L3"
+origin: "designed"
+tags: [regression, promotion, refactor, scope, end_to_end]
+
+input:
+  message: |
+    We're doing a major refactor of the promotion engine. Currently, promotion logic is spread across 3 microservices. We're consolidating into 1 dedicated Promo Service.
+
+    **Current Architecture:**
+    - Promo codes validated in Cart Service
+    - Discount calculations done in Order Service
+    - Promo eligibility checked in User Service
+
+    **New Architecture:**
+    - All promo logic centralized in new Promo Service
+    - Cart Service calls Promo Service to validate codes
+    - Order Service calls Promo Service to calculate discounts
+    - User Service calls Promo Service for eligibility checks
+    - Promo Service has its own database with cached rules
+
+    **Changes:**
+    - Response format: Promo Service returns structured JSON with: {coupon_id, discount_amount, discount_type, applicable_items, restrictions}
+    - Caching: Promo rules cached in Redis for 1 hour (previously computed inline)
+    - New feature: user-level promo limits (max 3 promo codes per user per day)
+    - Performance optimization: async rule evaluation (no longer blocks checkout)
+
+    **Question:**
+    Identify all system areas affected by this consolidation. What should we regression test?
+
+rules:
+  - type: contains_any
+    values: ["cart", "checkout", "order", "flow", "end-to-end", "user"]
+    fail_message: "Did not identify user-facing flows affected by the refactor"
+  - type: contains_any
+    values: ["cache", "Redis", "expiration", "stale", "invalidation"]
+    fail_message: "Did not address caching risks and cache invalidation"
+  - type: contains_any
+    values: ["latency", "performance", "async", "blocking", "timeout"]
+    fail_message: "Did not address performance and async behavior changes"
+
+criteria:
+  - id: user_flow_coverage
+    description: "Are all user-facing flows identified?"
+    weight: 0.35
+    rubric:
+      3: "Identifies 5+ flows: (1) add to cart with promo code, (2) checkout with multiple promos, (3) promo validation/application, (4) promo rejection (invalid code), (5) cart preview showing discounts, (6) order history display, (7) promo limit enforcement (max 3 per day)"
+      2: "Identifies 4 flows with reasonable detail"
+      1: "Identifies 2-3 flows"
+      0: "Fewer than 2 flows identified"
+
+  - id: integration_point_testing
+    description: "Are integration points between services tested?"
+    weight: 0.30
+    rubric:
+      3: "Proposes testing: (1) Cart → Promo Service call (latency, timeout), (2) Order → Promo Service call, (3) User → Promo Service call, (4) Promo Service → Redis cache hit/miss, (5) Service failures (Promo Service down, Redis down), (6) async evaluation and notification"
+      2: "Proposes 4-5 integration tests"
+      1: "Proposes 2-3 integration tests"
+      0: "No integration testing proposed"
+
+  - id: cache_risk_assessment
+    description: "Are caching risks identified and tested?"
+    weight: 0.20
+    rubric:
+      3: "Identifies risks: (1) stale cache: promo rule changed, but cached for 1 hour (old discount still applies), (2) cache invalidation on rule update, (3) cache miss storm if Redis down, (4) test scenario: change promotion rule, verify old cached version served for <1hr, verify new version served after expiry"
+      2: "Identifies 2-3 caching risks with test approach"
+      1: "Mentions caching but limited depth"
+      0: "No caching risk identified"
+
+  - id: data_consistency
+    description: "Are data consistency scenarios tested?"
+    weight: 0.10
+    rubric:
+      3: "Addresses: 'Old order records still have discounts calculated by old logic. New orders use new Promo Service. Reporting must handle both. Test that order history displays correctly for old and new orders.'"
+      2: "Mentions data consistency; some depth"
+      1: "Touches on consistency"
+      0: "No consistency discussion"
+
+  - id: failure_scenario_testing
+    description: "Are failure scenarios covered?"
+    weight: 0.05
+    rubric:
+      3: "Proposes: (1) Promo Service timeout (fallback behavior?), (2) Promo Service returns error (checkout blocked or allowed?), (3) Redis cache down (fallback to live calculation?), (4) network partition (circuit breaker?)"
+      2: "Proposes 2-3 failure scenarios"
+      1: "Mentions failure testing vaguely"
+      0: "No failure scenarios"
+
+expected_keywords:
+  - "cart"
+  - "checkout"
+  - "order"
+  - "cache"
+  - "Redis"
+  - "service"
+  - "integration"
+  - "refactor"
+  - "flow"
+
+mentor_criteria:
+  - "Identifies user-facing flows: add to cart, checkout, order history, promo limits"
+  - "Identifies integration points: Cart → Promo Service, Order → Promo Service"
+  - "Identifies caching risks: stale cache, cache invalidation, cache miss storm"
+  - "Identifies data consistency: old orders vs new orders"
+  - "Identifies failure scenarios: service timeout, service down, cache down"
+  - "Proposes specific regression test scenarios for each area"
+  - "Addresses performance and async behavior changes"
+
+auto_score_weight: 0.35
+mentor_score_weight: 0.65
+pass_threshold: 75

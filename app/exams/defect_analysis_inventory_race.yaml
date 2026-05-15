@@ -1,0 +1,104 @@
+# Defect Analysis: Inventory Overselling Race Condition
+# Tests ability to analyze a concurrent/timing bug with technical depth
+id: "qa-defect-analysis-inventory-race-001"
+role: "QA"
+skill: "defect_analysis"
+scenario: "Analyze overselling bug caused by race condition in concurrent order processing"
+difficulty: "L3"
+origin: "production_failure"
+tags: [concurrency, race_condition, inventory, database, technical]
+
+input:
+  message: |
+    We have a critical bug: customers can oversell inventory in a race condition.
+
+    **Scenario:**
+    - Product has 1 unit in stock
+    - Customer A and Customer B simultaneously (within 100ms) submit orders for the same product
+    - Order processing flow:
+      1. Check inventory: SELECT qty FROM products WHERE id = X (current: 1)
+      2. Validate: qty >= order_qty? Yes, 1 >= 1
+      3. Create order record: INSERT INTO orders (product_id, qty, customer_id, status)
+      4. Update inventory: UPDATE products SET qty = qty - 1 WHERE id = X
+
+    **What Happened:**
+    Both Customer A and B received "Order confirmed" emails
+    Both orders show status "paid" and "pending fulfillment"
+    Product shows -1 in inventory
+    Fulfillment team can only ship 1 unit; 1 customer will get a "sorry we're out of stock" message AFTER payment
+
+    **Questions for You:**
+    1. What's the root cause? Why did both orders get confirmed?
+    2. What are the technical scenarios that could trigger this? (Network timing, DB load, etc?)
+    3. How would you test this bug? What are the minimum conditions to reproduce?
+    4. What are 2-3 ways to fix this? Consider tradeoffs (complexity, performance, consistency guarantees)
+
+rules:
+  - type: contains_any
+    values: ["race condition", "concurrent", "simultaneous", "timing", "lock", "transaction"]
+    fail_message: "Did not identify the race condition / concurrent execution issue"
+  - type: contains_any
+    values: ["isolation", "READ_COMMITTED", "SERIALIZABLE", "pessimistic", "optimistic", "version"]
+    fail_message: "Did not propose a technical fix (locking, isolation level, or versioning)"
+  - type: contains_any
+    values: ["both confirmed", "-1", "negative", "oversell"]
+    fail_message: "Did not correctly explain how both orders were confirmed"
+
+criteria:
+  - id: root_cause_analysis
+    description: "Is the root cause clearly explained?"
+    weight: 0.35
+    rubric:
+      3: "Clearly states: 'Step 1 (SELECT) is not atomic with steps 3-4. Both A and B read qty=1, both pass validation, then both decrement, resulting in -1. No lock exists between READ and WRITE.' Mentions the gap explicitly."
+      2: "Identifies that reads happen before writes without atomic guarantees; explanation is mostly correct"
+      1: "Mentions concurrency or race but explanation is incomplete"
+      0: "Incorrect or missing root cause"
+
+  - id: reproduction_approach
+    description: "Can the bug be reproduced systematically?"
+    weight: 0.30
+    rubric:
+      3: "Proposes: 'Run 2 concurrent requests (threading or load test tool) with same product ID, qty 1, stock 1, ensure requests arrive within 100ms of each other, verify both return success and qty becomes -1 or 0 depending on race winner.'"
+      2: "Describes a reproduction approach; missing some detail (e.g., timing window, verification)"
+      1: "Mentions running concurrent orders but approach is vague"
+      0: "No reproduction strategy"
+
+  - id: solution_proposals
+    description: "Are multiple fix approaches proposed with tradeoffs?"
+    weight: 0.25
+    rubric:
+      3: "Proposes 3+ fixes: (a) Pessimistic locking: 'SELECT FOR UPDATE' within transaction (safe, may slow reads), (b) Optimistic locking: version column with conditional UPDATE (fast reads, retry on conflict), (c) Event sourcing: queue orders and process serially (simple but slower), discusses tradeoffs of consistency vs performance"
+      2: "Proposes 2 fixes with basic tradeoff discussion"
+      1: "Proposes 1 fix without tradeoffs"
+      0: "No solution proposals"
+
+  - id: idempotency_considerations
+    description: "Are retry/recovery considerations addressed?"
+    weight: 0.10
+    rubric:
+      3: "Notes: 'If we implement optimistic locking with retries, ensure order_id is unique so retried requests don't create duplicate orders. Use idempotency keys.' Addresses recovery."
+      2: "Mentions idempotency or retry but without detail"
+      1: "Touches on recovery but incomplete"
+      0: "No recovery discussion"
+
+expected_keywords:
+  - "race condition"
+  - "concurrent"
+  - "lock"
+  - "transaction"
+  - "atomic"
+  - "SELECT FOR UPDATE"
+  - "inventory"
+  - "oversell"
+
+mentor_criteria:
+  - "Identifies the race condition between SELECT and UPDATE"
+  - "Explains why both orders were confirmed (both read qty=1 before either decremented)"
+  - "Explains inventory became -1 (both decremented from 1 to 0, actually to -1 if execution is exact)"
+  - "Proposes at least 2 technical fixes (e.g., pessimistic locking, optimistic locking, versioning)"
+  - "Describes tradeoffs: consistency vs performance vs complexity"
+  - "Suggests a testing/reproduction approach"
+
+auto_score_weight: 0.35
+mentor_score_weight: 0.65
+pass_threshold: 75

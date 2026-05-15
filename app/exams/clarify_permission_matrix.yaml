@@ -1,0 +1,91 @@
+# Requirement Clarification: Permission Matrix Definition
+# Tests ability to identify underspecified access control requirements
+id: "qa-clarify-permission-matrix-001"
+role: "QA"
+skill: "requirement_clarification"
+scenario: "Clarify underspecified admin access control requirements"
+difficulty: "L2"
+origin: "designed"
+tags: [requirements, permissions, access_control, clarification, security]
+
+input:
+  message: |
+    PM has a requirement for admin access control:
+
+    **Requirement:**
+    "Admin users should be able to see all orders in the system."
+
+    We need to test this before rolling out admin permissions next sprint. What test cases should I write? I feel like something is missing, but I'm not sure what.
+
+rules:
+  - type: contains_any
+    values: ["ask", "clarify", "which", "role", "type", "define", "question"]
+    fail_message: "Did not ask clarifying questions; treated vague requirement as complete"
+  - type: contains_any
+    values: ["write", "edit", "delete", "modify", "read", "view", "access"]
+    fail_message: "Did not distinguish between read vs write vs delete permissions"
+  - type: contains_any
+    values: ["merchant", "cross", "other", "store", "shop", "seller"]
+    fail_message: "Did not ask about cross-merchant or multi-tenant access boundaries"
+
+criteria:
+  - id: ambiguity_recognition
+    description: "Does the agent recognize the underspecified requirements?"
+    weight: 0.35
+    rubric:
+      3: "Clearly states: 'The requirement is underspecified. 'Admin' could mean multiple roles. 'See all orders' only specifies READ but not WRITE/DELETE. No mention of multi-tenant boundaries.'"
+      2: "Identifies 2 of the 3 gaps"
+      1: "Identifies 1 gap"
+      0: "Treats requirement as complete"
+
+  - id: clarification_questions
+    description: "Are specific clarifying questions asked?"
+    weight: 0.40
+    rubric:
+      3: "Asks 6+ questions: (1) 'How many admin role types (super-admin, order-admin, support-admin)?' (2) 'Are there different permission levels (view, edit, cancel, refund)?' (3) 'Can admins see cross-merchant orders or only their own merchant?' (4) 'Can admins edit order data (addresses, items)?' (5) 'Can admins force-cancel orders?' (6) 'Can admins issue refunds or only request them?' (7) 'Should admins see PII (full credit cards)?'"
+      2: "Asks 4-5 clarifying questions"
+      1: "Asks 2-3 clarifying questions"
+      0: "No clarifying questions"
+
+  - id: security_consideration
+    description: "Are security implications considered?"
+    weight: 0.15
+    rubric:
+      3: "Notes: 'Cross-merchant visibility is a security risk. If our system supports multiple merchants, admins viewing competitor orders is a data privacy issue. Need to clarify multi-tenant boundaries.'"
+      2: "Mentions security but explanation is basic"
+      1: "Touches on security without depth"
+      0: "No security consideration"
+
+  - id: test_impact
+    description: "Does the agent explain how clarifications affect test design?"
+    weight: 0.10
+    rubric:
+      3: "Explains: 'Different role types require different test cases. If write vs read are different, test both. If multi-tenant, test that Merchant A admin cannot see Merchant B orders.'"
+      2: "Explains how some clarifications affect testing"
+      1: "Mentions test impact vaguely"
+      0: "No test impact explanation"
+
+expected_keywords:
+  - "role"
+  - "admin"
+  - "permission"
+  - "write"
+  - "edit"
+  - "read"
+  - "delete"
+  - "merchant"
+  - "access"
+  - "clarify"
+
+mentor_criteria:
+  - "Identifies that 'admin' is too broad (multiple role types needed)"
+  - "Identifies that 'see all orders' only specifies READ, not WRITE/DELETE"
+  - "Asks about different permission levels (view, edit, cancel, refund)"
+  - "Asks about cross-merchant visibility and multi-tenant boundaries"
+  - "Asks about sensitive data access (PII, credit cards)"
+  - "Identifies security implications of cross-merchant visibility"
+  - "Explains why clarification is necessary for test design"
+
+auto_score_weight: 0.45
+mentor_score_weight: 0.55
+pass_threshold: 75

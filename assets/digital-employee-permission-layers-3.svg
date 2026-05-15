@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 540" role="img">
+  <title>Digital Employee Permissions: Three-Layer Model (Engineering Implementation)</title>
+  <desc>IAM, Runtime, RAG. Task-scoped permissions and plan-query-execute separation. Towards Guaranteed Safe AI arXiv2405.06624.</desc>
+  <defs>
+    <filter id="sh" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.14"/>
+    </filter>
+    <marker id="mup" markerWidth="9" markerHeight="9" refX="4.5" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 Z" fill="#64748b"/>
+    </marker>
+    <linearGradient id="gIAM" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e2e8f0"/><stop offset="100%" style="stop-color:#cbd5e1"/>
+    </linearGradient>
+    <linearGradient id="gRT" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#bae6fd"/><stop offset="100%" style="stop-color:#7dd3fc"/>
+    </linearGradient>
+    <linearGradient id="gRAG" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#fde68a"/><stop offset="100%" style="stop-color:#fcd34d"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="#f8fafc"/>
+  <text x="460" y="36" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="17" font-weight="600" fill="#0f172a">Digital Employee Permissions: Three-Layer Model (Engineering Implementation)</text>
+  <text x="460" y="60" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" fill="#64748b">Inspired by: task-scoped permissions · plan/query/execute responsibility separation (Towards Guaranteed Safe AI, arXiv:2405.06624)</text>
+  <text x="28" y="292" font-family="Helvetica Neue, Arial, sans-serif" font-size="10.5" fill="#64748b" transform="rotate(-90 28 292)">Bottom to top: layered constraints</text>
+  <line x1="52" y1="410" x2="52" y2="118" stroke="#cbd5e1" stroke-width="1.4" marker-end="url(#mup)"/>
+  <g filter="url(#sh)" font-family="Helvetica Neue, Arial, sans-serif">
+    <path d="M 70 410 L 850 410 L 810 342 L 110 342 Z" fill="url(#gIAM)" stroke="#475569" stroke-width="1.3"/>
+    <text x="460" y="370" text-anchor="middle" font-size="14" font-weight="600" fill="#1e293b">&#x2460; System Level (IAM)</text>
+    <text x="460" y="392" text-anchor="middle" font-size="10.5" fill="#334155">Digital employee identity binding · Org accounts &amp; roles · Cloud resource/API scope · Linked to human accountability</text>
+    <path d="M 110 340 L 810 340 L 775 272 L 145 272 Z" fill="url(#gRT)" stroke="#0284c7" stroke-width="1.3"/>
+    <text x="460" y="302" text-anchor="middle" font-size="14" font-weight="600" fill="#0c4a6e">&#x2461; Agent Behavior Level (Runtime)</text>
+    <text x="460" y="324" text-anchor="middle" font-size="10.5" fill="#075985">Tool allowlist · L1/L2/L3 autonomy &amp; approval · Human-in-the-loop · plan/query/execute path separation</text>
+    <path d="M 145 270 L 775 270 L 745 185 L 175 185 Z" fill="url(#gRAG)" stroke="#d97706" stroke-width="1.3"/>
+    <text x="460" y="224" text-anchor="middle" font-size="14" font-weight="600" fill="#78350f">&#x2462; Knowledge Base Access (RAG)</text>
+    <text x="460" y="246" text-anchor="middle" font-size="10.5" fill="#92400e">Retrievable knowledge scope · Collections &amp; permissions · Injection protection &amp; citation audit</text>
+  </g>
+  <rect x="598" y="86" width="304" height="82" rx="6" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="610" y="106" font-family="Helvetica Neue, Arial, sans-serif" font-size="10.5" font-weight="600" fill="#334155">Mapping to paper's responsibility separation (illustrative)</text>
+  <text x="610" y="126" font-family="Helvetica Neue, Arial, sans-serif" font-size="9.5" fill="#64748b">Planning/Strategy &#x2192; Orchestration &amp; approval within Runtime</text>
+  <text x="610" y="142" font-family="Helvetica Neue, Arial, sans-serif" font-size="9.5" fill="#64748b">Query/Retrieval &#x2192; RAG layer boundaries &amp; traceability</text>
+  <text x="610" y="158" font-family="Helvetica Neue, Arial, sans-serif" font-size="9.5" fill="#64748b">Execution/Side-effects &#x2192; IAM + Runtime tools &amp; sandbox</text>
+  <text x="460" y="172" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="9.5" fill="#64748b">&#x2193; Tasks and queries pass top-down through each layer's policy checks (conceptual)</text>
+</svg>

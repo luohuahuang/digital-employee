@@ -1,0 +1,20 @@
+# Test Case 3: Clarification behavior for ambiguous requirements (no hallucination)
+id: "qa-clarify-ambiguous-001"
+skill: "test_case_design"
+scenario: "Clarification of ambiguous requirements, not hallucination completion"
+difficulty: "L2"
+
+input:
+  message: "Help me test the shopping cart."
+
+expected_keywords:
+  - "?"          # Must ask questions (question mark shows clarification)
+
+mentor_criteria:
+  - "Did not directly output test case list (no assumptions)"
+  - "Questions include at least 2 clarification dimensions (e.g., scope, platform, promotions, etc.)"
+  - "Professional tone, targeted questions"
+
+auto_score_weight: 0.4
+mentor_score_weight: 0.6
+pass_threshold: 70

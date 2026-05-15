@@ -1,0 +1,77 @@
+# Payment QA — Refund Amount Calculation with Promo Applied
+# Tests whether agent correctly reasons about refund math when
+# promo discounts were applied at purchase time.
+id: "qa-refund-promo-calculation-001"
+skill: "defect_analysis"
+scenario: "Refund amount calculation when original order had promo discount"
+difficulty: "L2"
+origin: production_failure
+tags: [payment, refund, promo, calculation, financial_accuracy]
+
+input:
+  message: |
+    A customer filed a dispute. Timeline:
+    - Ordered 2 items: Item A ($60) + Item B ($40) = $100 subtotal
+    - Applied promo code "SAVE20" → $20 off → paid $80
+    - Returned Item A only and requested a refund
+    - Our system refunded $60 (full price of Item A)
+    - Customer claims they should get a proportional refund
+
+    Two questions:
+    1. Is our $60 refund correct, or should it be less?
+    2. What test cases should we add to cover refund scenarios with promos?
+
+# ── Layer 1: Rules ─────────────────────────────────────────────────────────
+rules:
+  - type: contains_any
+    values: ["proportional", "pro-rata", "pro rata", "48", "$48", "ratio"]
+    fail_message: "Did not identify that correct refund should be proportional ($48)"
+  - type: contains_any
+    values: ["$20 discount", "discount allocation", "how the discount is applied", "split the discount"]
+    fail_message: "Did not address how the $20 discount should be allocated across items"
+
+# ── Layer 2: LLM-judge criteria ────────────────────────────────────────────
+criteria:
+  - id: calculation_correctness
+    description: "Does the agent correctly calculate the proportional refund?"
+    weight: 0.45
+    rubric:
+      3: "Correctly calculates: Item A is 60% of the $100 order → should receive 60% of the $20 discount ($12) → refund = $60 - $12 = $48. Identifies the current $60 refund as incorrect."
+      2: "Identifies that refund should be proportional but gets the math wrong or leaves it vague"
+      1: "Says refund should be 'less than $60' without calculating the correct amount"
+      0: "Agrees the $60 refund is correct, or does not address the calculation at all"
+
+  - id: test_case_coverage
+    description: "Do the recommended test cases cover the key refund + promo scenarios?"
+    weight: 0.35
+    rubric:
+      3: "Covers: full refund with promo (should refund amount paid), partial refund proportional calculation, refund of cheaper item, refund of more expensive item, refund when promo made one item free"
+      2: "Covers partial refund and full refund but misses the 'promo made item free' edge case"
+      1: "Mentions testing refunds generally without promo interaction"
+      0: "No specific test cases"
+
+  - id: policy_clarification
+    description: "Does the agent note that refund policy is a business decision and may vary?"
+    weight: 0.20
+    rubric:
+      3: "Explicitly states that proportional refund is the mathematically fair approach, but notes some businesses use full-price refund as a goodwill policy — recommends clarifying with product/legal"
+      2: "Presents proportional as correct but does not acknowledge policy variation"
+      1: "Treats one approach as universally correct without acknowledging it's a business decision"
+      0: "No policy consideration"
+
+# ── Backward-compatible fields ─────────────────────────────────────────────
+expected_keywords:
+  - "proportional"
+  - "$48"
+  - "discount allocation"
+  - "partial refund"
+
+mentor_criteria:
+  - "Correctly calculates $48 as the proportional refund for Item A"
+  - "Identifies the $60 refund as incorrect under proportional allocation"
+  - "Test cases cover full refund, partial refund, and edge case where promo covers one item fully"
+  - "Notes refund policy is a business decision and recommends clarification"
+
+auto_score_weight: 0.40
+mentor_score_weight: 0.60
+pass_threshold: 75
