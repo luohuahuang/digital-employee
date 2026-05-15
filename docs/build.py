@@ -160,12 +160,17 @@ def _remove_toc_section(html: str) -> str:
     Removes from the matching <h2> tag up to (but not including) the next
     block-level heading or end of string.
     """
+    # Note: permalink:True inserts <a class="headerlink">¶</a> inside every
+    # heading, so the actual HTML is:
+    #   <h2 id="_1">目录<a class="headerlink" ...>¶</a></h2>
+    # We must allow arbitrary content between the heading text and </h2>.
     pattern = (
-        r"<h2[^>]*>"              # opening h2 tag
-        r"(?:Table of Contents|目录)"   # heading text
-        r"</h2>"
-        r".*?"                    # everything in between (non-greedy)
-        r"(?=<h[12][ >]|$)"      # stop before next h1/h2 or EOF
+        r"<h2[^>]*>"                         # opening h2 tag
+        r"(?:Table of Contents|目录)"        # heading text (start)
+        r".*?"                               # permalink anchor etc.
+        r"</h2>"                             # closing h2
+        r".*?"                               # list content (non-greedy)
+        r"(?=<h[12][ >]|$)"                 # stop before next h1/h2 or EOF
     )
     return re.sub(pattern, "", html, flags=re.DOTALL)
 
