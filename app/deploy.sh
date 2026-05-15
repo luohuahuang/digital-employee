@@ -238,10 +238,63 @@ else
     fi
 fi
 
-# ── 启动服务器 ─────────────────────────────────────────────────────────────────
+# ── 启动服务器（systemd 托管，后台永久运行）────────────────────────────────────
+echo ""
+echo "[5/5] Installing systemd service..."
+
+SERVICE_NAME="digital-employee"
+SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
+PYTHON_BIN="$VENV_DIR/bin/python"
+
+# 读取 .env 中的环境变量，写入 systemd EnvironmentFile 格式
+ENV_FILE="$SCRIPT_DIR/.env"
+
+cat > /tmp/${SERVICE_NAME}.service <<EOF
+[Unit]
+Description=Digital Employee Platform
+After=network.target
+
+[Service]
+Type=simple
+User=$(whoami)
+WorkingDirectory=$SCRIPT_DIR
+EnvironmentFile=$ENV_FILE
+ExecStart=$PYTHON_BIN web/server.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# 安装 service 文件（需要 root）
+if [ "$(id -u)" -eq 0 ]; then
+    cp /tmp/${SERVICE_NAME}.service "$SERVICE_FILE"
+else
+    sudo cp /tmp/${SERVICE_NAME}.service "$SERVICE_FILE"
+fi
+
+sudo systemctl daemon-reload
+sudo systemctl enable "$SERVICE_NAME"
+sudo systemctl restart "$SERVICE_NAME"
+
+sleep 2
+STATUS=$(sudo systemctl is-active "$SERVICE_NAME")
 echo ""
 echo "========================================="
-echo " Starting server on http://0.0.0.0:8000"
-echo " (Ctrl+C to stop)"
+if [ "$STATUS" = "active" ]; then
+    echo " ✓ 服务已启动并设为开机自启"
+    echo " 访问地址：http://$(hostname -I | awk '{print $1}'):8000"
+else
+    echo " ✗ 服务启动失败，查看日志："
+    sudo journalctl -u "$SERVICE_NAME" -n 30 --no-pager
+fi
+echo ""
+echo " 常用命令："
+echo "   查看状态：sudo systemctl status $SERVICE_NAME"
+echo "   查看日志：sudo journalctl -u $SERVICE_NAME -f"
+echo "   重启服务：sudo systemctl restart $SERVICE_NAME"
+echo "   停止服务：sudo systemctl stop $SERVICE_NAME"
 echo "========================================="
-python web/server.py
