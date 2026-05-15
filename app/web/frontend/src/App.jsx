@@ -193,7 +193,7 @@ function InnerApp() {
 
           {/* Docs link */}
           <a
-            href="/docs/"
+            href={import.meta.env.BASE_URL + 'docs/'}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"

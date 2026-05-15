@@ -124,8 +124,11 @@ CONTEXT_COMPRESS_THRESHOLD: int = int(os.getenv("CONTEXT_COMPRESS_THRESHOLD", "4
 CONTEXT_KEEP_RECENT: int = int(os.getenv("CONTEXT_KEEP_RECENT", "10"))
 
 # ── Web Server ─────────────────────────────────────────────────────────────
-WEB_HOST: str = os.getenv("WEB_HOST", "0.0.0.0")
-WEB_PORT: int = int(os.getenv("WEB_PORT", "8000"))
+WEB_HOST: str      = os.getenv("WEB_HOST", "0.0.0.0")
+WEB_PORT: int      = int(os.getenv("WEB_PORT", "8000"))
+# Public-facing settings (used by deploy.sh / nginx)
+PUBLIC_PORT: int   = int(os.getenv("PUBLIC_PORT", "80"))
+WEB_BASE_PATH: str = os.getenv("WEB_BASE_PATH", "/digital-employee")
 WEB_DB_PATH: str = os.path.join(os.path.dirname(__file__), "web", "de_team.db")
 WEB_STATIC_DIR: str = os.path.join(os.path.dirname(__file__), "web", "frontend", "dist")
 DOCS_DIR: str       = os.path.join(os.path.dirname(__file__), "..", "docs")

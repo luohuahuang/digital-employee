@@ -1,6 +1,8 @@
 import axios from 'axios'
 
-export const api = axios.create({ baseURL: '/api' })
+// import.meta.env.BASE_URL = '/digital-employee/' in production (set by vite.config.js base)
+// and '/' in Vite dev mode only if base were unset — here it's always '/digital-employee/'
+export const api = axios.create({ baseURL: import.meta.env.BASE_URL + 'api' })
 
 export const agentApi = {
   list: () => api.get('/agents').then(r => r.data),
@@ -115,11 +117,13 @@ export const testPlanApi = {
 export function createGroupWebSocket(groupId) {
   const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
   const host = window.location.host
-  return new WebSocket(`${proto}://${host}/api/group-chats/${groupId}/ws`)
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+  return new WebSocket(`${proto}://${host}${base}/api/group-chats/${groupId}/ws`)
 }
 
 export function createWebSocket(convId) {
   const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
   const host = window.location.host
-  return new WebSocket(`${proto}://${host}/api/conversations/${convId}/ws`)
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+  return new WebSocket(`${proto}://${host}${base}/api/conversations/${convId}/ws`)
 }
