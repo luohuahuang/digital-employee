@@ -6,7 +6,7 @@ openai>=1.0.0       # GPT-4 API（可选，通过 LLM_PROVIDER 切换）
 # RAG / 向量库（本地，无需服务器）
 # embedding 改用 OpenAI API，彻底去掉 torch/sentence-transformers 依赖
 chromadb>=0.5.0
-pysqlite3-binary   # ChromaDB 需要 SQLite>=3.35；系统版本不足时用此包覆盖
+pysqlite3-binary; sys_platform == "linux"   # ChromaDB 需要 SQLite>=3.35；仅 Linux 需要（macOS 系统 SQLite 已够新）
 
 # 工具库
 pyyaml>=6.0

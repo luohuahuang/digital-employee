@@ -1,14 +1,30 @@
 #!/usr/bin/env bash
 # Run from the app/ directory.
+# Creates a Python venv on first run; subsequent runs reuse it.
+set -e
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
-# Install/sync Python dependencies (fast no-op if already up to date):
+VENV_DIR="$SCRIPT_DIR/venv"
+
+# ── Create venv if missing ─────────────────────────────────────────────────────
+if [ ! -f "$VENV_DIR/bin/python" ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv "$VENV_DIR"
+fi
+
+# ── Activate venv ─────────────────────────────────────────────────────────────
+# shellcheck disable=SC1091
+source "$VENV_DIR/bin/activate"
+
+# ── Install / sync Python dependencies ────────────────────────────────────────
 pip install -q -r requirements.txt
 
-# Build HTML documentation portal (regenerates ../docs/index.html from markdown sources):
+# ── Build HTML documentation portal ───────────────────────────────────────────
 python ../docs/build.py
 
-# Build frontend (first run or when source changes):
-(cd web/frontend && npm install && npm run build)
+# ── Build frontend ─────────────────────────────────────────────────────────────
+(cd web/frontend && npm install --silent && npm run build)
 
-# Start server
+# ── Start server ──────────────────────────────────────────────────────────────
 python web/server.py
