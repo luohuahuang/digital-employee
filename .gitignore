@@ -2,3 +2,10 @@
 digital-qa-employee/web/frontend/node_modules/
 app/web/frontend/node_modules/
 app/web/frontend/dist/
+
+# Runtime data — never commit
+*.db
+*.db-shm
+*.db-wal
+app/venv/
+.DS_Store
