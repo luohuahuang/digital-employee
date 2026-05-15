@@ -149,11 +149,22 @@ echo ""
 echo "[1/4] Setting up Python virtual environment..."
 
 VENV_DIR="$SCRIPT_DIR/venv"
-if [ ! -d "$VENV_DIR" ]; then
+NEED_NEW_VENV=1
+
+if [ -d "$VENV_DIR" ] && [ -f "$VENV_DIR/bin/python" ]; then
+    VENV_VER=$("$VENV_DIR/bin/python" -c 'import sys; print(sys.version_info[0]*10+sys.version_info[1])' 2>/dev/null || echo "0")
+    if [ "$VENV_VER" -ge 39 ] 2>/dev/null; then
+        echo "  venv already exists (Python $("$VENV_DIR/bin/python" --version)), skipping creation"
+        NEED_NEW_VENV=0
+    else
+        echo "  venv exists but uses Python $("$VENV_DIR/bin/python" --version 2>&1) — too old, recreating with Python 3.11..."
+        rm -rf "$VENV_DIR"
+    fi
+fi
+
+if [ "$NEED_NEW_VENV" -eq 1 ]; then
     "$PYTHON311" -m venv "$VENV_DIR"
-    echo "  ✓ Created venv at $VENV_DIR"
-else
-    echo "  venv already exists, skipping creation"
+    echo "  ✓ Created venv with $($PYTHON311 --version)"
 fi
 
 # 激活 venv
