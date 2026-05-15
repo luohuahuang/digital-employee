@@ -164,7 +164,11 @@ source "$VENV_DIR/bin/activate"
 pip install --upgrade pip --quiet
 
 echo "  Installing requirements..."
-pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/ --quiet
+pip install -r requirements.txt \
+    -i https://pypi.tuna.tsinghua.edu.cn/simple/ \
+    --extra-index-url https://pypi.org/simple/ \
+    --trusted-host pypi.tuna.tsinghua.edu.cn \
+    --quiet
 echo "  ✓ Python dependencies installed"
 
 # ── 2. 前端构建 ────────────────────────────────────────────────────────────────
