@@ -116,6 +116,31 @@ def _ensure_list_blank_lines(text: str) -> str:
     return "\n".join(out)
 
 
+def _build_toc_html(toc_items: list[dict], lang: str = "en") -> str:
+    """Generate a styled in-page TOC block (H2 + H3 only)."""
+    items = [i for i in toc_items if 1 <= i["depth"] <= 2]
+    if len(items) < 3:
+        return ""
+    label = "Contents" if lang == "en" else "目录"
+    lines = [f'<div class="page-toc"><p class="page-toc-title">{label}</p><ul class="page-toc-list">']
+    for item in items:
+        cls = f'page-toc-depth-{item["depth"]}'
+        lines.append(f'<li class="{cls}"><a href="#{item["id"]}">{item["name"]}</a></li>')
+    lines.append("</ul></div>")
+    return "\n".join(lines)
+
+
+def _inject_toc(html: str, toc_html: str) -> str:
+    """Insert toc_html immediately after the closing </h1> tag."""
+    if not toc_html:
+        return html
+    m = re.search(r"</h1>", html)
+    if not m:
+        return html
+    pos = m.end()
+    return html[:pos] + "\n" + toc_html + html[pos:]
+
+
 def md_to_html(text: str) -> tuple[str, list[dict]]:
     """Convert markdown text to HTML; also extract headings for nav."""
     text = _ensure_list_blank_lines(text)
@@ -165,6 +190,11 @@ def build():
         cn_md  = read_md(ROOT / cn_file)
         en_html, en_toc = md_to_html(en_md)
         cn_html, cn_toc = md_to_html(cn_md)
+
+        # Inject in-page TOC for long design docs
+        if doc_id in {"overview", "design", "qa-persp"}:
+            en_html = _inject_toc(en_html, _build_toc_html(en_toc, "en"))
+            cn_html = _inject_toc(cn_html, _build_toc_html(cn_toc, "zh"))
 
         # Derive short title from first H1
         m = re.search(r"^#\s+(.+)$", en_md, re.MULTILINE)
@@ -414,6 +444,26 @@ body {{
 .sr-item-ctx mark {{ background: color-mix(in srgb, var(--accent) 25%, transparent); color: var(--text); border-radius: 2px; padding: 0 1px; }}
 .sr-empty {{ padding: 20px; text-align: center; color: var(--text3); font-size: 13px; }}
 
+/* In-page TOC block (injected for selected long docs) */
+.md-content .page-toc {{
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 18px; margin: 1em 0 1.8em;
+  font-size: .9em;
+}}
+.md-content .page-toc-title {{
+  font-size: .75em; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--text3); margin-bottom: 8px;
+}}
+.md-content .page-toc-list {{
+  list-style: none; padding: 0; margin: 0; columns: 1;
+}}
+.md-content .page-toc-list li {{ padding: 2px 0; }}
+.md-content .page-toc-list li a {{
+  color: var(--text2); text-decoration: none; font-size: .88em;
+}}
+.md-content .page-toc-list li a:hover {{ color: var(--accent); text-decoration: underline; }}
+.md-content .page-toc-depth-2 {{ padding-left: 16px; font-size: .84em; }}
+
 /* Mobile sidebar overlay */
 #sidebar-overlay {{
   display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45);
@@ -541,6 +591,22 @@ document.addEventListener('DOMContentLoaded', () => {{
   document.addEventListener('click', e => {{
     if (!document.getElementById('search-wrap').contains(e.target))
       closeSearch();
+  }});
+
+  // Fix in-page anchor links: on desktop #main is the scroll container,
+  // so browser's default href="#id" scrolls window (no-op). Intercept and
+  // scroll #main instead; also update the address bar hash.
+  document.getElementById('content').addEventListener('click', e => {{
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const id = decodeURIComponent(a.getAttribute('href').slice(1));
+    if (!id) return;
+    const target = document.getElementById(id);
+    if (target) {{
+      e.preventDefault();
+      target.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
+      history.replaceState(null, '', '#' + id);
+    }}
   }});
 
   // Scroll spy for TOC

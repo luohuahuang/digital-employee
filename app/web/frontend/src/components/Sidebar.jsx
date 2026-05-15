@@ -39,7 +39,7 @@ function RoleBadge({ role }) {
 
 const ROLE_ORDER = ['QA', 'Dev', 'PM', 'SRE', 'PJ']
 
-export default function Sidebar({ agents, groups, onNewAgent, onNewGroup }) {
+export default function Sidebar({ agents, groups, onNewAgent, onNewGroup, isOpen, onClose }) {
   const { agentId, groupId } = useParams()
   const location = useLocation()
   const { t } = useLang()
@@ -68,8 +68,8 @@ export default function Sidebar({ agents, groups, onNewAgent, onNewGroup }) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [menuOpen])
 
-  // Close menu on route change
-  useEffect(() => { setMenuOpen(false) }, [location.pathname])
+  // Close menu and sidebar on route change
+  useEffect(() => { setMenuOpen(false); onClose?.() }, [location.pathname])
 
   const grouped = {}
   for (const a of agents) {
@@ -89,7 +89,12 @@ export default function Sidebar({ agents, groups, onNewAgent, onNewGroup }) {
   ]
 
   return (
-    <aside className="w-64 flex flex-col bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shrink-0">
+    <aside className={`
+      w-64 flex flex-col bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shrink-0
+      fixed inset-y-0 left-0 z-50 transition-transform duration-200
+      md:static md:translate-x-0 md:z-auto
+      ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+    `}>
       {/* Header */}
       <div className="p-4 border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center gap-2">

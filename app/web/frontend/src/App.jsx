@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Routes, Route, useNavigate, Navigate, Link, useLocation } from 'react-router-dom'
-import { Sun, Moon, Pencil, Check, ClipboardList, TestTube2, BarChart2, FileText, ShieldCheck, UserX, BookOpen } from 'lucide-react'
+import { Sun, Moon, Pencil, Check, ClipboardList, TestTube2, BarChart2, FileText, ShieldCheck, UserX, BookOpen, Menu } from 'lucide-react'
 import Sidebar from './components/Sidebar.jsx'
 import ChatView from './components/ChatView.jsx'
 import CreateAgentModal from './components/CreateAgentModal.jsx'
@@ -123,6 +123,7 @@ function InnerApp() {
   const [groups,      setGroups]      = useState([])
   const [showCreate,  setShowCreate]  = useState(false)
   const [showGroup,   setShowGroup]   = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const navigate  = useNavigate()
   const { dark, setDark } = useTheme()
   const { lang, setLang, t } = useLang()
@@ -170,12 +171,23 @@ function InnerApp() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-white dark:bg-gray-950 text-gray-900 dark:text-white">
-      <Sidebar agents={agents} groups={groups} onNewAgent={() => setShowCreate(true)} onNewGroup={() => setShowGroup(true)} />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />
+      )}
+      <Sidebar agents={agents} groups={groups} onNewAgent={() => setShowCreate(true)} onNewGroup={() => setShowGroup(true)} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Top bar: bookmarks + controls */}
-        <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 shrink-0">
-          {/* Bookmark shortcuts */}
-          <BookmarkBar />
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 shrink-0">
+          {/* Hamburger (mobile only) */}
+          <button
+            className="md:hidden p-1.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shrink-0"
+            onClick={() => setSidebarOpen(v => !v)}
+          >
+            <Menu className="w-4 h-4" />
+          </button>
+          {/* Bookmark shortcuts (hidden on mobile) */}
+          <div className="hidden md:flex items-center"><BookmarkBar /></div>
 
           <div className="flex-1" />
 
