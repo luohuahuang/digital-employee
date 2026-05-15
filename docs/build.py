@@ -414,22 +414,64 @@ body {{
 .sr-item-ctx mark {{ background: color-mix(in srgb, var(--accent) 25%, transparent); color: var(--text); border-radius: 2px; padding: 0 1px; }}
 .sr-empty {{ padding: 20px; text-align: center; color: var(--text3); font-size: 13px; }}
 
+/* Mobile sidebar overlay */
+#sidebar-overlay {{
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  z-index: 90; opacity: 0; transition: opacity .2s;
+}}
+#sidebar-overlay.visible {{ opacity: 1; }}
+
+/* Hamburger button (mobile only) */
+#menu-btn {{
+  display: none; width: 36px; height: 36px; border-radius: 6px;
+  align-items: center; justify-content: center;
+  border: 1px solid var(--border); background: var(--bg2);
+  cursor: pointer; color: var(--text2); flex-shrink: 0;
+  transition: all .15s;
+}}
+#menu-btn:hover {{ background: var(--bg3); color: var(--text); }}
+
 /* Responsive */
 @media (max-width: 900px) {{
   #toc {{ display: none; }}
   #main {{ padding: calc(var(--topbar-h) + 20px) 24px 60px; }}
 }}
-@media (max-width: 640px) {{
-  #sidebar {{ width: 200px; }}
-  :root {{ --sidebar-w: 200px; }}
+@media (max-width: 768px) {{
+  #menu-btn {{ display: flex; }}
+  :root {{ --sidebar-w: 260px; }}
+  #sidebar {{
+    position: fixed; top: 0; left: 0; height: 100vh; z-index: 95;
+    transform: translateX(-100%); transition: transform .25s ease;
+    padding-top: calc(var(--topbar-h) + 12px);
+    box-shadow: 2px 0 12px rgba(0,0,0,.15);
+  }}
+  #sidebar.open {{ transform: translateX(0); }}
+  #sidebar-overlay {{ display: block; }}
+  #main {{ padding: calc(var(--topbar-h) + 16px) 16px 60px; }}
+  #topbar .logo {{ width: auto; }}
+  #search-wrap {{ max-width: none; }}
+}}
+@media (max-width: 480px) {{
+  :root {{ --sidebar-w: 80vw; }}
+  #main {{ padding: calc(var(--topbar-h) + 12px) 12px 60px; }}
+  .md-content pre {{ padding: 12px; font-size: .8em; }}
+  .md-content table {{ font-size: .8em; }}
 }}
 </style>
 </head>
 <body>
 
+<!-- Mobile sidebar overlay -->
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
 <!-- Topbar -->
 <div id="topbar">
-  <a class="logo" href="#" onclick="navigate('readme');return false;">
+  <button id="menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+      <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
+    </svg>
+  </button>
+  <a class="logo" href="#" onclick="navigate('overview');return false;">
     <span>🤖</span>
     <span id="logo-text">Digital Employee Docs</span>
   </a>
@@ -480,7 +522,7 @@ const DOCS = {docs_json};
 // ── State ───────────────────────────────────────────────────────────────────
 let lang        = localStorage.getItem('docs_lang')  || 'zh';
 let theme       = localStorage.getItem('docs_theme') || 'light';
-let currentDoc  = localStorage.getItem('docs_cur')   || 'readme';
+let currentDoc  = localStorage.getItem('docs_cur')   || 'overview';
 
 // ── Initialise ───────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {{
@@ -544,7 +586,7 @@ function buildSidebar() {{
       btn.dataset.id = d.id;
       const title = lang === 'en' ? d.en_title : d.cn_title;
       btn.innerHTML = `<span class="emoji">${{d.emoji}}</span><span>${{title.replace(/ — .+/, '').replace(/\s*·.+/, '').slice(0,36)}}</span>`;
-      btn.onclick = () => navigate(d.id);
+      btn.onclick = () => {{ navigate(d.id); closeSidebar(); }};
       sec.appendChild(btn);
     }});
     list.appendChild(sec);
@@ -659,6 +701,20 @@ function runSearch(query) {{
 
 function closeSearch() {{
   document.getElementById('search-results').classList.remove('open');
+}}
+
+// ── Mobile sidebar ────────────────────────────────────────────────────────────
+function toggleSidebar() {{
+  const sidebar  = document.getElementById('sidebar');
+  const overlay  = document.getElementById('sidebar-overlay');
+  const isOpen   = sidebar.classList.contains('open');
+  sidebar.classList.toggle('open', !isOpen);
+  overlay.classList.toggle('visible', !isOpen);
+}}
+
+function closeSidebar() {{
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('visible');
 }}
 </script>
 </body>

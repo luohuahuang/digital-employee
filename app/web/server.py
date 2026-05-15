@@ -40,7 +40,7 @@ from web.api.test_runs import router as test_runs_router
 from web.api.test_plans import router as test_plans_router
 from web.api.browser_skills import router as browser_skills_router
 
-app = FastAPI(title="Digital QA Team", version="1.0.0")
+app = FastAPI(title="Digital Employee Platform", version="1.0.0", docs_url="/api-docs", redoc_url="/api-redoc")
 
 # Allow React dev server (localhost:5173) during development
 app.add_middleware(
@@ -90,6 +90,7 @@ if os.path.isdir(WEB_STATIC_DIR):
 
 if __name__ == "__main__":
     init_db()
-    print(f"🚀 Digital QA Team starting at http://{WEB_HOST}:{WEB_PORT}")
-    print(f"   API docs: http://localhost:{WEB_PORT}/docs")
+    print(f"🚀 Digital Employee Platform starting at http://{WEB_HOST}:{WEB_PORT}")
+    print(f"   API docs:  http://localhost:{WEB_PORT}/api-docs")
+    print(f"   HTML docs: http://localhost:{WEB_PORT}/docs")
     uvicorn.run("web.server:app", host=WEB_HOST, port=WEB_PORT, reload=True)
