@@ -116,9 +116,19 @@ def _ensure_list_blank_lines(text: str) -> str:
     return "\n".join(out)
 
 
-def _build_toc_html(toc_items: list[dict], lang: str = "en") -> str:
-    """Generate a styled in-page TOC block (H2 + H3 only)."""
-    items = [i for i in toc_items if 1 <= i["depth"] <= 2]
+_SKIP_TOC_NAMES = {"table of contents", "目录"}
+
+def _build_toc_html(toc_items: list[dict], lang: str = "en", max_depth: int = 2) -> str:
+    """Generate a styled in-page TOC block.
+
+    max_depth=2 → H2 + H3 (good for shorter docs)
+    max_depth=1 → H2 only  (good for long docs like llm-guide / test)
+    """
+    items = [
+        i for i in toc_items
+        if 1 <= i["depth"] <= max_depth
+        and i["name"].strip().lower() not in _SKIP_TOC_NAMES
+    ]
     if len(items) < 3:
         return ""
     label = "Contents" if lang == "en" else "目录"
@@ -139,6 +149,25 @@ def _inject_toc(html: str, toc_html: str) -> str:
         return html
     pos = m.end()
     return html[:pos] + "\n" + toc_html + html[pos:]
+
+
+def _remove_toc_section(html: str) -> str:
+    """Remove a hand-written ## Table of Contents / ## 目录 section.
+
+    These docs have a manually authored TOC whose anchor IDs were written for
+    GitHub's slugifier, which differs from Python-markdown's.  We delete this
+    section so only the auto-generated .page-toc (with correct IDs) remains.
+    Removes from the matching <h2> tag up to (but not including) the next
+    block-level heading or end of string.
+    """
+    pattern = (
+        r"<h2[^>]*>"              # opening h2 tag
+        r"(?:Table of Contents|目录)"   # heading text
+        r"</h2>"
+        r".*?"                    # everything in between (non-greedy)
+        r"(?=<h[12][ >]|$)"      # stop before next h1/h2 or EOF
+    )
+    return re.sub(pattern, "", html, flags=re.DOTALL)
 
 
 def md_to_html(text: str) -> tuple[str, list[dict]]:
@@ -195,6 +224,12 @@ def build():
         if doc_id in {"overview", "design", "qa-persp"}:
             en_html = _inject_toc(en_html, _build_toc_html(en_toc, "en"))
             cn_html = _inject_toc(cn_html, _build_toc_html(cn_toc, "zh"))
+
+        # For docs with hand-written TOC: remove it (anchors don't match
+        # Python-markdown's slugifier) then inject the auto-generated version
+        if doc_id in {"llm-guide", "test"}:
+            en_html = _inject_toc(_remove_toc_section(en_html), _build_toc_html(en_toc, "en", max_depth=1))
+            cn_html = _inject_toc(_remove_toc_section(cn_html), _build_toc_html(cn_toc, "zh", max_depth=1))
 
         # Derive short title from first H1
         m = re.search(r"^#\s+(.+)$", en_md, re.MULTILINE)
