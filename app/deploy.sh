@@ -346,6 +346,10 @@ map $http_upgrade $connection_upgrade {
 MAPEOF
     fi
 
+    # 删除可能冲突的默认 nginx 配置（CentOS/Alibaba Cloud 自带 default.conf，
+    # 也监听 80 端口用 server_name _，会导致我们的配置被忽略）
+    rm -f /etc/nginx/conf.d/default.conf
+
     # --- nginx site config ---
     NGINX_CONF="/etc/nginx/conf.d/digital-employee.conf"
     cat > "$NGINX_CONF" <<NGINXEOF
@@ -376,7 +380,11 @@ NGINXEOF
 
     nginx -t
     systemctl enable nginx
-    systemctl reload nginx || systemctl start nginx
+    if systemctl is-active --quiet nginx; then
+        systemctl reload nginx
+    else
+        systemctl start nginx
+    fi
 
     # --- systemd service ---
     SERVICE_NAME="digital-employee"
