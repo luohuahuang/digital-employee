@@ -136,9 +136,10 @@ map $http_upgrade $connection_upgrade {
 MAPEOF
 fi
 
-# 构建 server_name（主域名 + 可选 www）
-SERVER_NAME="$DOMAIN"
-[ "$WITH_WWW" -eq 1 ] && SERVER_NAME="$DOMAIN www.$DOMAIN"
+# 构建 server_name（主域名 + 可选 www + 本机 IP）
+LOCAL_IP=$(hostname -I | awk '{print $1}')
+SERVER_NAME="$DOMAIN $LOCAL_IP"
+[ "$WITH_WWW" -eq 1 ] && SERVER_NAME="$DOMAIN www.$DOMAIN $LOCAL_IP"
 
 cat > /etc/nginx/conf.d/digital-employee.conf <<NGINXEOF
 # HTTP → HTTPS 重定向

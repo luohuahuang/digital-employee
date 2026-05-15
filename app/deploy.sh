@@ -346,17 +346,22 @@ map $http_upgrade $connection_upgrade {
 MAPEOF
     fi
 
-    # 删除可能冲突的默认 nginx 配置（CentOS/Alibaba Cloud 自带 default.conf，
-    # 也监听 80 端口用 server_name _，会导致我们的配置被忽略）
+    # 删除可能冲突的默认 nginx 配置文件（如果存在）
     rm -f /etc/nginx/conf.d/default.conf
+
+    # 获取本机内网 IP 和公网 IP 作为 server_name，避免使用 server_name _ + default_server。
+    # 阿里云 nginx.conf 主文件内嵌了 default_server，用 _ 会冲突导致我们的配置被忽略。
+    # 使用具体 IP/主机名则无需争抢 default_server，nginx 按 server_name 精确匹配。
+    LOCAL_IP=$(hostname -I | awk '{print $1}')
+    SERVER_NAMES="$LOCAL_IP localhost"
 
     # --- nginx site config ---
     NGINX_CONF="/etc/nginx/conf.d/digital-employee.conf"
     cat > "$NGINX_CONF" <<NGINXEOF
 server {
-    listen ${PUBLIC_PORT} default_server;
-    listen [::]:${PUBLIC_PORT} default_server;
-    server_name _;
+    listen ${PUBLIC_PORT};
+    listen [::]:${PUBLIC_PORT};
+    server_name ${SERVER_NAMES};
 
     location = / {
         return 301 ${WEB_BASE_PATH}/;
