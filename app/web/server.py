@@ -22,7 +22,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 
 from config import WEB_HOST, WEB_PORT, WEB_STATIC_DIR, DOCS_DIR
 from web.db.database import init_db
@@ -71,6 +71,12 @@ app.include_router(browser_skills_router, prefix="/api")
 def health():
     return {"status": "ok", "service": "Digital Employee Platform"}
 
+
+# Redirect /docs → /docs/ so the StaticFiles mount serves index.html
+# (the SPA catch-all would otherwise intercept the no-trailing-slash form)
+@app.get("/docs")
+async def docs_redirect():
+    return RedirectResponse(url="/docs/", status_code=301)
 
 # Serve HTML docs at /docs/  (must be mounted before the SPA catch-all)
 if os.path.isdir(DOCS_DIR):
