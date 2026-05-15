@@ -6,6 +6,17 @@ To switch LLM providers, just modify LLM_PROVIDER in .env:
   LLM_PROVIDER=anthropic  →  Use Claude (default)
   LLM_PROVIDER=openai     →  Use GPT-4
 """
+# ChromaDB requires SQLite >= 3.35.0.
+# On older Linux distros (e.g. Alibaba Cloud Linux 3 / CentOS 8 which ship
+# with SQLite 3.26), we override the built-in sqlite3 module with
+# pysqlite3-binary which bundles a modern SQLite.
+try:
+    import pysqlite3 as _pysqlite3  # noqa: F401
+    import sys as _sys
+    _sys.modules["sqlite3"] = _sys.modules.pop("pysqlite3")
+except ImportError:
+    pass  # pysqlite3-binary not installed — system sqlite3 will be used
+
 import os
 from dotenv import load_dotenv
 
